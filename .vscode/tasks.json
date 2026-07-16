@@ -1,0 +1,21 @@
+{
+    "version": "2.0.0",
+    "tasks": [
+        {
+            "label": "Run pyX2Cscope",
+            "type": "process",
+            "command": "C:/pyx2cscope/pyX2Cscope/pyX2Cscope.exe",
+            "args": [
+                "-p",
+                "AUTO",
+                "-e",
+                "${workspaceFolder}/out/AK512_FOC_T1S/default.elf"
+            ],
+            "presentation": {
+                "reveal": "always",
+                "panel": "new"
+            },
+            "problemMatcher": []
+        }
+    ]
+}

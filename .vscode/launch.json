@@ -1,0 +1,19 @@
+{
+  // Use IntelliSense to learn about possible attributes.
+  // Hover to view descriptions of existing attributes.
+  // For more information, visit: https://go.microsoft.com/fwlink/?linkid=830387
+  "version": "0.2.0",
+  "configurations": [
+    {
+      // Note: Properties here can override MPLAB project settings
+      "name": "Launch AK512_FOC_T1S: default",
+      "type": "mplab-core-da",
+      "request": "launch",
+      "project": "AK512_FOC_T1S",
+      "configuration": "default",
+      "stopOnEntry": true,
+      "preLaunchTask": "AK512_FOC_T1S: default - Build",
+      "program": "${workspaceFolder}/out/AK512_FOC_T1S/default.elf"
+    }
+  ]
+}

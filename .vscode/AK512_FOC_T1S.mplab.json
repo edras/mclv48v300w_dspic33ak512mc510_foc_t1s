@@ -3,14 +3,15 @@
     "configurations": [
         {
             "name": "default",
-            "id": "conf1",
+            "id": "",
             "device": "dsPIC33AK512MC510",
             "imagePath": "./out/AK512_FOC_T1S/default.elf",
+            "tool": "Curiosity/Starter Kits (PKOB4)",
             "packs": [
                 {
                     "name": "dsPIC33AK-MC_DFP",
-                    "vendor": "Microchip",
-                    "version": "1.5.263"
+                    "version": "1.4.172",
+                    "vendor": "Microchip"
                 }
             ],
             "fileSet": "default",
@@ -22,7 +23,22 @@
             "name": "default-XC-DSC",
             "type": "toolchain",
             "provider": "microchip.toolchains:xc-dsc@4.00.00",
-            "properties": {}
+            "properties": {
+                "global.common-include-directories": [
+                    "\"src\"",
+                    "\"src/hal\"",
+                    "\"src/T1S/inc\"",
+                    "\"dsPIC33AK512MC510_MCLV48V300W_T1S\""
+                ],
+                "compiler.isolate-each-function": true,
+                "compiler.optimization-level": "-O1",
+                "compiler.place-data-into-section": true,
+                "linker.heap-size": "0",
+                "linker.remove-unused-sections": true,
+                "compiler++.isolate-each-function": true,
+                "compiler++.optimization-level": "-O1",
+                "compiler.keep-inline": true
+            }
         }
     ],
     "fileSets": [
@@ -32,7 +48,30 @@
                 {
                     "include": "**/*",
                     "exclude": "**/@(build|_build|out|cmake|.vscode)/**/*"
-                }
+                },
+                "main.c",
+                "dsPIC33AK512MC510_MCLV48V300W_T1S/mcc_generated_files/opa/src/opa3.c",
+                "dsPIC33AK512MC510_MCLV48V300W_T1S/mcc_generated_files/opa/src/opa2.c",
+                "dsPIC33AK512MC510_MCLV48V300W_T1S/mcc_generated_files/opa/src/opa1.c",
+                "dsPIC33AK512MC510_MCLV48V300W_T1S/mcc_generated_files/i2c_host/src/i2c3.c",
+                "dsPIC33AK512MC510_MCLV48V300W_T1S/mcc_generated_files/spi_host/src/spi1.c",
+                "dsPIC33AK512MC510_MCLV48V300W_T1S/mcc_generated_files/pwm_hs/src/pwm.c",
+                "dsPIC33AK512MC510_MCLV48V300W_T1S/mcc_generated_files/adc/src/adc1.c",
+                "dsPIC33AK512MC510_MCLV48V300W_T1S/mcc_generated_files/system/src/config_bits.c",
+                "dsPIC33AK512MC510_MCLV48V300W_T1S/mcc_generated_files/dma/src/dma.c",
+                "dsPIC33AK512MC510_MCLV48V300W_T1S/mcc_generated_files/system/src/dmt_asm.s",
+                "dsPIC33AK512MC510_MCLV48V300W_T1S/mcc_generated_files/system/src/dmt.c",
+                "dsPIC33AK512MC510_MCLV48V300W_T1S/mcc_generated_files/adc/src/adc3.c",
+                "dsPIC33AK512MC510_MCLV48V300W_T1S/mcc_generated_files/adc/src/adc2.c",
+                "dsPIC33AK512MC510_MCLV48V300W_T1S/mcc_generated_files/system/src/clock.c",
+                "dsPIC33AK512MC510_MCLV48V300W_T1S/mcc_generated_files/timer/src/tmr1.c",
+                "dsPIC33AK512MC510_MCLV48V300W_T1S/mcc_generated_files/system/src/interrupt.c",
+                "dsPIC33AK512MC510_MCLV48V300W_T1S/mcc_generated_files/system/src/where_was_i.s",
+                "dsPIC33AK512MC510_MCLV48V300W_T1S/mcc_generated_files/system/src/traps.c",
+                "dsPIC33AK512MC510_MCLV48V300W_T1S/mcc_generated_files/system/src/system.c",
+                "dsPIC33AK512MC510_MCLV48V300W_T1S/mcc_generated_files/system/src/pins.c",
+                "dsPIC33AK512MC510_MCLV48V300W_T1S/mcc_generated_files/uart/src/uart1.c",
+                "dsPIC33AK512MC510_MCLV48V300W_T1S/mcc_generated_files/system/src/reset.c"
             ]
         }
     ]
