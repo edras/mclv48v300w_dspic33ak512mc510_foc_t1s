@@ -1,0 +1,39 @@
+{
+    "version": "1.9",
+    "configurations": [
+        {
+            "name": "default",
+            "id": "conf1",
+            "device": "dsPIC33AK512MC510",
+            "imagePath": "./out/AK512_FOC_T1S/default.elf",
+            "packs": [
+                {
+                    "name": "dsPIC33AK-MC_DFP",
+                    "vendor": "Microchip",
+                    "version": "1.5.263"
+                }
+            ],
+            "fileSet": "default",
+            "toolchain": "default-XC-DSC"
+        }
+    ],
+    "propertyGroups": [
+        {
+            "name": "default-XC-DSC",
+            "type": "toolchain",
+            "provider": "microchip.toolchains:xc-dsc@4.00.00",
+            "properties": {}
+        }
+    ],
+    "fileSets": [
+        {
+            "name": "default",
+            "files": [
+                {
+                    "include": "**/*",
+                    "exclude": "**/@(build|_build|out|cmake|.vscode)/**/*"
+                }
+            ]
+        }
+    ]
+}
