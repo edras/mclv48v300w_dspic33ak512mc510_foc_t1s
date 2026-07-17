@@ -280,21 +280,31 @@ When SW1 is pressed, the FOC executes the following startup:
 
 X2Cscope provides a real-time software oscilloscope view of internal firmware variables without halting the CPU.
 
-### Key Monitored Variables
+![pyX2Cscope Screenshot](assets/pyx2cscope.png "pyX2Cscope - FOC waveforms over T1S")
 
-| Variable | Path | Description |
-|----------|------|-------------|
-| `mcApp.controlScheme.idq.d` | — | Measured d-axis current |
-| `mcApp.controlScheme.idq.q` | — | Measured q-axis current |
-| `mcApp.controlScheme.vdq.d` | — | d-axis voltage output |
-| `mcApp.controlScheme.vdq.q` | — | q-axis voltage output |
-| `mcApp.controlScheme.ctrlParam.speedRef` | — | Speed reference (RPM) |
-| `mcApp.controlScheme.estimatorInterface.speedMech.RPM` | — | Estimated speed |
-| `mcApp.controlScheme.ctrlParam.iqRef` | — | Iq reference from speed PI |
-| `mcApp.motorInputs.measureCurrent.Ia_actual` | — | Phase A current (Amps) |
-| `mcApp.motorInputs.measureCurrent.Ib_actual` | — | Phase B current (Amps) |
-| `mcApp.motorInputs.measureVdc.value` | — | DC bus voltage (Volts) |
-| `mcApp.appState` | — | Application state (0–7) |
+*pyX2Cscope showing phase currents (Ia, Ib), SVM duty cycles, estimated rotor angle (theta), and watch variables (Id, Iq, speed reference, FOC execution time, DACDAT overcurrent threshold) — all streamed in real time over the 10BASE-T1S network.*
+
+### Scope View Channels
+
+| Variable | Color | Description |
+|----------|-------|-------------|
+| `mcApp.controlScheme.iabc.a` | Blue | Phase A current |
+| `mcApp.controlScheme.iabc.b` | Red | Phase B current |
+| `mcApp.PWMDuty.dutycycle1` | Black | SVM duty cycle 1 |
+| `mcApp.PWMDuty.dutycycle2` | Blue | SVM duty cycle 2 |
+| `mcApp.PWMDuty.dutycycle3` | Red | SVM duty cycle 3 |
+| `mcApp.controlScheme.estimator.qTheta` | Magenta | Estimated electrical angle (trigger source) |
+
+### Watch View Variables
+
+| Variable | Type | Scaling | Unit | Description |
+|----------|------|---------|------|-------------|
+| `mcApp.motorInputs.measurePot` | int16 | 0.0244 | % | Potentiometer position |
+| `mcApp.controlScheme.idq.d` | float | 1.0 | A | Measured d-axis current |
+| `mcApp.controlScheme.idq.q` | float | 1.0 | A | Measured q-axis current |
+| `mcApp.controlScheme.ctrlParam.speedRef` | float | 1.0 | RPM | Speed reference |
+| `timerFOC` | uint32 | 0.001 | µs | FOC loop execution time (~35 µs) |
+| `DACDAT` (SFR) | uint16 | 1.0 | counts | CMP3 overcurrent DAC threshold |
 
 ### Connecting
 
