@@ -2,17 +2,14 @@
 #include <stdbool.h>
 #include <string.h>
 #include <math.h>
-#include <xc.h>
 
 #include "mc_app.h"
 #include "mc_user_params.h"
 #include "mc_calc_params.h"
 #include "foc/foc.h"
 
-/* MCC Melody generated ADC headers */
-#include "mcc_generated_files/adc/adc1.h"
-#include "mcc_generated_files/adc/adc2.h"
-#include "mcc_generated_files/adc/adc3.h"
+/* Hardware Abstraction Layer */
+#include "hal/mc/mc_hal.h"
 
 /* Application data instance */
 MC_APP_DATA_T mcApp;
@@ -23,10 +20,6 @@ static void MC_APP_StateMachine(MC_APP_DATA_T *pMCData);
 static void MC_APP_ParamsInit(MC_APP_DATA_T *pMCData);
 static void MC_APP_ControlSchemeConfig(MC_APP_DATA_T *pMCData);
 static void MC_APP_ReceivedDataProcess(MC_APP_DATA_T *pMCData);
-static void MC_APP_MotorInputsRead(MCAPP_MEASURE_T *pMotorInputs);
-static void MC_APP_PWMEnable(void);
-static void MC_APP_PWMDisable(void);
-static void MC_APP_PWMDutySet(MC_DUTYCYCLEOUT_T *pPdc);
 
 /**
  * @brief Initialize the motor control application
@@ -34,7 +27,8 @@ static void MC_APP_PWMDutySet(MC_DUTYCYCLEOUT_T *pPdc);
 void MC_APP_Init(void)
 {
     MC_APP_ParamsInit(pMCApp);
-    MC_APP_PWMDisable();
+    MC_HAL_PWMDisableOutputs();
+    MC_HAL_OverCurrentProtectionInit();
 }
 
 /**
@@ -42,9 +36,9 @@ void MC_APP_Init(void)
  */
 void MC_APP_ISR(void)
 {
-    MC_APP_MotorInputsRead(pMCApp->pMotorInputs);
+    MC_HAL_MotorInputsRead(pMCApp->pMotorInputs);
     MC_APP_StateMachine(pMCApp);
-    MC_APP_PWMDutySet(pMCApp->pPWMDuty);
+    MC_HAL_PWMDutySet(pMCApp->pPWMDuty);
 }
 
 /**
@@ -69,7 +63,7 @@ static void MC_APP_StateMachine(MC_APP_DATA_T *pMCData)
     switch (pMCData->appState)
     {
         case MCAPP_INIT:
-            MC_APP_PWMDisable();
+            MC_HAL_PWMDisableOutputs();
             pMCData->runCmd = 0;
             pMCData->directionCmd = 0;
             MCAPP_FOCInit(pControlScheme);
@@ -95,7 +89,7 @@ static void MC_APP_StateMachine(MC_APP_DATA_T *pMCData)
         case MCAPP_LOAD_START_READY_CHECK:
             MCAPP_MeasureCurrentCalibrate(pMotorInputs);
             /* Enable PWM outputs and start FOC */
-            MC_APP_PWMEnable();
+            MC_HAL_PWMEnableOutputs();
             pControlScheme->focState = FOC_INIT;
             pMCData->appState = MCAPP_RUN;
             break;
@@ -137,22 +131,22 @@ static void MC_APP_StateMachine(MC_APP_DATA_T *pMCData)
             break;
 
         case MCAPP_STOP:
-            MC_APP_PWMDisable();
+            MC_HAL_PWMDisableOutputs();
             pMCData->appState = MCAPP_INIT;
             break;
 
         case MCAPP_FAULT:
-            MC_APP_PWMDisable();
+            MC_HAL_PWMDisableOutputs();
             break;
 
         default:
-            MC_APP_PWMDisable();
+            MC_HAL_PWMDisableOutputs();
             break;
     }
 
     if ((pControlScheme->faultStatus == 1) || (pMCData->appState == MCAPP_FAULT))
     {
-        MC_APP_PWMDisable();
+        MC_HAL_PWMDisableOutputs();
     }
 }
 
@@ -320,76 +314,4 @@ static void MC_APP_ReceivedDataProcess(MC_APP_DATA_T *pMCData)
     pMotorInputs->measureVdc.value = pMotorInputs->measureVdc.count * MC1_PEAK_VOLTAGE / (float)MAX_ADC_COUNT;
 }
 
-/**
- * @brief Read motor inputs from ADC (MCC Melody API)
- */
-static void MC_APP_MotorInputsRead(MCAPP_MEASURE_T *pMotorInputs)
-{
-    /* Read phase currents - centered around mid-scale (2048), scaled to Q15 */
-    pMotorInputs->measureCurrent.Ia = (int16_t)((HALF_ADC_COUNT - (int16_t)ADC1_ConversionResultGet(ADC1_IA)) << 4);
-    pMotorInputs->measureCurrent.Ib = (int16_t)((HALF_ADC_COUNT - (int16_t)ADC2_ConversionResultGet(ADC2_IB)) << 4);
-    pMotorInputs->measureCurrent.Ibus = (int16_t)(((int16_t)ADC3_ConversionResultGet(ADC3_IBUS) - HALF_ADC_COUNT) << 4);
 
-    /* Read potentiometer */
-    pMotorInputs->measurePot = (int16_t)ADC2_ConversionResultGet(ADC2_POT);
-
-    /* Read DC bus voltage */
-    pMotorInputs->measureVdc.count = (int16_t)ADC3_ConversionResultGet(ADC3_VBUS);
-}
-
-/**
- * @brief Enable PWM outputs (remove override)
- */
-static void MC_APP_PWMEnable(void)
-{
-    PG1DCbits.DC = 0;
-    PG2DCbits.DC = 0;
-    PG3DCbits.DC = 0;
-
-    PG3IOCON2bits.OVRENH = 0;
-    PG3IOCON2bits.OVRENL = 0;
-    PG2IOCON2bits.OVRENH = 0;
-    PG2IOCON2bits.OVRENL = 0;
-    PG1IOCON2bits.OVRENH = 0;
-    PG1IOCON2bits.OVRENL = 0;
-}
-
-/**
- * @brief Disable PWM outputs (activate override to LOW)
- */
-static void MC_APP_PWMDisable(void)
-{
-    PG1DCbits.DC = 0;
-    PG2DCbits.DC = 0;
-    PG3DCbits.DC = 0;
-
-    PG3IOCON2bits.OVRDAT = 0;
-    PG2IOCON2bits.OVRDAT = 0;
-    PG1IOCON2bits.OVRDAT = 0;
-
-    PG3IOCON2bits.OVRENH = 1;
-    PG3IOCON2bits.OVRENL = 1;
-    PG2IOCON2bits.OVRENH = 1;
-    PG2IOCON2bits.OVRENL = 1;
-    PG1IOCON2bits.OVRENH = 1;
-    PG1IOCON2bits.OVRENL = 1;
-}
-
-/**
- * @brief Set PWM duty cycles from FOC output (MCC Melody registers)
- */
-static void MC_APP_PWMDutySet(MC_DUTYCYCLEOUT_T *pPdc)
-{
-    /* Limit duty cycles */
-    if (pPdc->dutycycle1 < MIN_DUTY) pPdc->dutycycle1 = MIN_DUTY;
-    if (pPdc->dutycycle2 < MIN_DUTY) pPdc->dutycycle2 = MIN_DUTY;
-    if (pPdc->dutycycle3 < MIN_DUTY) pPdc->dutycycle3 = MIN_DUTY;
-    if (pPdc->dutycycle1 > MAX_DUTY) pPdc->dutycycle1 = MAX_DUTY;
-    if (pPdc->dutycycle2 > MAX_DUTY) pPdc->dutycycle2 = MAX_DUTY;
-    if (pPdc->dutycycle3 > MAX_DUTY) pPdc->dutycycle3 = MAX_DUTY;
-
-    /* Write to PWM duty cycle registers */
-    PG1DCbits.DC = (uint32_t)(pPdc->dutycycle1);
-    PG2DCbits.DC = (uint32_t)(pPdc->dutycycle2);
-    PG3DCbits.DC = (uint32_t)(pPdc->dutycycle3);
-}

@@ -1,4 +1,4 @@
-/*
+﻿/*
  (c) [2026] Microchip Technology Inc. and its subsidiaries.
 
     Subject to your compliance with these terms, you may use Microchip 
@@ -24,8 +24,8 @@
 #include "T1S/t1s_lwip.h"
 #include "T1S/udp_perf_client.h"
 #include "X2Cscope/X2Cscope.h"
-#include "app.h"
 #include "mc/mc_app.h"
+#include "app.h"
 
 #include <stdio.h>
 
