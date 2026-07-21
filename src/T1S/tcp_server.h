@@ -11,7 +11,8 @@ typedef void (*tcp_server_recv_fn)(void* tcp_server_cfg, const uint8_t* data, ui
 
 typedef struct {
     uint16_t port;               // Port to listen on   
-    struct tcp_pcb* pcb;         // Active connection PCB, do not fill this value
+    struct tcp_pcb* listen_pcb;  // Listening PCB, do not fill this value
+    struct tcp_pcb* conn_pcb;    // Active connection PCB, do not fill this value
     tcp_server_recv_fn recv_fn;  // callback function to handle incoming data from client
 } TCP_Server;
 

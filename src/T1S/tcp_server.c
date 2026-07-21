@@ -12,6 +12,7 @@ static err_t tcp_server_recv(void *arg, struct tcp_pcb *tpcb, struct pbuf *p, er
 
     if (p == NULL) {
         printf("TCP client on port %u disconnected\r\n", server_cfg->port);
+        server_cfg->conn_pcb = NULL;
         tcp_close(tpcb);
         return ERR_OK;
     }
@@ -26,6 +27,9 @@ static err_t tcp_server_recv(void *arg, struct tcp_pcb *tpcb, struct pbuf *p, er
         server_cfg->recv_fn(server_cfg, (const uint8_t*)p->payload, p->tot_len);
     }
 
+    // Acknowledge received data to update TCP window
+    tcp_recved(tpcb, p->tot_len);
+
     // free the received pbuf
     pbuf_free(p);
 
@@ -34,11 +38,11 @@ static err_t tcp_server_recv(void *arg, struct tcp_pcb *tpcb, struct pbuf *p, er
 
 void tcp_server_send(TCP_Server* cfg, const uint8_t* data, uint16_t len)
 {
-    if(cfg != NULL && cfg->pcb != NULL)
+    if(cfg != NULL && cfg->conn_pcb != NULL)
     {
-        err_t err = tcp_write(cfg->pcb, data, len, TCP_WRITE_FLAG_COPY);
+        err_t err = tcp_write(cfg->conn_pcb, data, len, TCP_WRITE_FLAG_COPY);
         if (err == ERR_OK) {
-            tcp_output(cfg->pcb);
+            tcp_output(cfg->conn_pcb);
         } else {
             printf("TCP server port %u: Error sending data, err=%d\r\n", cfg->port, err);
         }
@@ -49,6 +53,8 @@ static void tcp_server_err(void *arg, err_t err)
 {
     TCP_Server* server_cfg = (TCP_Server*)arg;
     printf("TCP client on port %u error/disconnect, err=%d\r\n", server_cfg->port, err);
+    // PCB is already freed by lwIP when this callback is invoked
+    server_cfg->conn_pcb = NULL;
 }
 
 static err_t tcp_server_accept(void *arg, struct tcp_pcb *newpcb, err_t err) 
@@ -63,15 +69,22 @@ static err_t tcp_server_accept(void *arg, struct tcp_pcb *newpcb, err_t err)
     }
 
     TCP_Server* server_cfg = (TCP_Server*)arg;
-    printf("TCP client connected on port %u\r\n", server_cfg->port);
-    server_cfg->pcb = newpcb;
 
-    // Set this config as argument for connection
+    // Close existing connection if any (only one client at a time)
+    if (server_cfg->conn_pcb != NULL) {
+        tcp_close(server_cfg->conn_pcb);
+        server_cfg->conn_pcb = NULL;
+    }
+
+    printf("TCP client connected on port %u\r\n", server_cfg->port);
+    server_cfg->conn_pcb = newpcb;
+
+    // Set this config as argument for connection callbacks
     tcp_arg(newpcb, server_cfg);
 
     // Register receive callback
     tcp_recv(newpcb, tcp_server_recv);
-    // Register error callback (optional, but good practice)
+    // Register error callback
     tcp_err(newpcb, tcp_server_err);
 
     return ERR_OK;
@@ -79,7 +92,7 @@ static err_t tcp_server_accept(void *arg, struct tcp_pcb *newpcb, err_t err)
 
 bool tcp_server_start(TCP_Server *cfg) 
 {
-    if (cfg->pcb) 
+    if (cfg->listen_pcb) 
     {
         tcp_server_stop(cfg);
     }
@@ -109,17 +122,22 @@ bool tcp_server_start(TCP_Server *cfg)
     }
 
     server_pcb = NULL;
-    cfg->pcb = pcb;
+    cfg->listen_pcb = pcb;
+    cfg->conn_pcb = NULL;
     tcp_accept(pcb, tcp_server_accept);
-    tcp_arg(pcb, cfg); // // Pass config to accept callback
+    tcp_arg(pcb, cfg); // Pass config to accept callback
     printf("TCP server listening on port %d\r\n", cfg->port);
     return true;
 }
 
 void tcp_server_stop(TCP_Server *cfg) {
-    if (cfg->pcb) {
-        tcp_close(cfg->pcb);
-        cfg->pcb = NULL;
+    if (cfg->conn_pcb) {
+        tcp_close(cfg->conn_pcb);
+        cfg->conn_pcb = NULL;
+    }
+    if (cfg->listen_pcb) {
+        tcp_close(cfg->listen_pcb);
+        cfg->listen_pcb = NULL;
     }
     printf("TCP server stopped on port %u\n", cfg->port);
 }

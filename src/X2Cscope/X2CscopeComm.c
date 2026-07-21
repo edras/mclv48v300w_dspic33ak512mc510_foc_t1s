@@ -62,8 +62,9 @@ void receiveTcpData(void* tcp_server_cfg, const uint8_t* data, uint16_t len);
 
 /* TCP server configuration */
 TCP_Server x2cscope_tcp_server = {
-    .pcb = NULL,
     .port = 12666,
+    .listen_pcb = NULL,
+    .conn_pcb = NULL,
     .recv_fn = receiveTcpData
 };
 
