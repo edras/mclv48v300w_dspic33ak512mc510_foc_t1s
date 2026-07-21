@@ -39,7 +39,7 @@
                     "\"dsPIC33AK512MC510_MCLV48V300W_T1S\""
                 ],
                 "compiler.isolate-each-function": true,
-                "compiler.optimization-level": "-O3",
+                "compiler.optimization-level": "3",
                 "compiler.place-data-into-section": true,
                 "linker.heap-size": "0",
                 "linker.remove-unused-sections": true,
