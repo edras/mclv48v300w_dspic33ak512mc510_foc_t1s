@@ -56,9 +56,6 @@ Copyright (c) [2012-2020] Microchip Technology Inc.
 extern "C" {
 #endif
 
-#include <xc.h>
-#include <stdint.h>
-
 //X2Cscope buffer size in bytes, uses the specified bytes from RAM
 #ifndef X2CSCOPE_BUFFER_SIZE
 #define X2CSCOPE_BUFFER_SIZE 5000
@@ -72,8 +69,8 @@ extern "C" {
 #endif
 
 typedef struct compilationDate_type {
-    char date[12];  /* __DATE__ is 11 chars + null terminator */
-    char time[9];   /* __TIME__ is  8 chars + null terminator */
+    char date[12];  /* __DATE__ is 11 chars + null terminator (e.g. "Aug 18 2026\0") */
+    char time[9];   /* __TIME__ is 8 chars + null terminator (e.g. "12:34:56\0") */
 } compilationDate_t;
 
 /* External X2Cscope API functions that must be used in the applications  */

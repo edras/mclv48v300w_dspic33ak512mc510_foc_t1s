@@ -48,12 +48,10 @@ Copyright (c) [2012-2020] Microchip Technology Inc.
 /**
  * This file implements the X2C Lin protocol connection with MCC Peripheral drivers.
  */
-#include <xc.h>
 #include "X2CscopeComm.h"
 #include "T1S/tcp_server.h"
 
 #include <stdint.h>
-#include <stdbool.h>
 
 /* function prototypes */
 void receiveTcpData(void* tcp_server_cfg, const uint8_t* data, uint16_t len);
@@ -134,7 +132,7 @@ uint8_t receiveSerial()
     True -> Serial data ready to read.
     False -> No data.
  */
-uint8_t isReceiveDataAvailable()
+bool isReceiveDataAvailable()
 {
     return (tcp_rx_buf.head != tcp_rx_buf.tail);
 }
@@ -147,7 +145,7 @@ uint8_t isReceiveDataAvailable()
     True -> Transmit buffer is not full, at least one more character can be written.
     False -> Transmit buffer is full.
  */
-uint8_t isSendReady()
+bool isSendReady()
 {
     return 1; // Always ready in TCP case
 }

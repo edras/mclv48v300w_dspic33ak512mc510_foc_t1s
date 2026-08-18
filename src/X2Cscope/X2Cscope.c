@@ -48,32 +48,40 @@ Copyright (c) [2012-2020] Microchip Technology Inc.
 
 
 /**
- * This file implements X2Cscope_Init for the dsPIC33AK512_T1S project.
- * Communication is over TCP/IP via the 10BASE-T1S interface (see X2CscopeComm.c).
+ * This file shows an example X2Cscope_Init implementation.
+ * Adapt the X2CscopeComm.c callbacks to your communication peripheral.
+ * See interface/examples/ for UART, CAN, and TCP/IP implementations.
  */
 #include "X2CscopeComm.h"
 #include "X2Cscope.h"
 
-/* Build date/time stamp — readable via the X2Cscope "Get Device Info" service.
- * Must be const and global: X2Cscope_InitialiseEx stores a pointer to it. */
-const compilationDate_t compilationDate = {__DATE__, __TIME__};
-
-/* Scope data buffer — size controlled by X2CSCOPE_BUFFER_SIZE (default 5000 bytes). */
+/* Scope data buffer.
+ * Size is controlled by X2CSCOPE_BUFFER_SIZE (default 5000 bytes).
+ * Override by defining X2CSCOPE_BUFFER_SIZE before including X2Cscope.h. */
 int8_t X2CscopeArray[X2CSCOPE_BUFFER_SIZE];
+
+/* Build date/time stamp — read out by the X2Cscope "Get Device Info" service.
+ * Must have static storage duration (global or static local) because
+ * X2Cscope_InitialiseEx stores a pointer to it internally. */
+const compilationDate_t compilationDate = {__DATE__, __TIME__};
 
 void X2Cscope_Init(void)
 {
+    /* X2CSCOPE_CONFIG_INIT requires all 9 parameters. Omitting or reordering
+     * any argument causes a compile-time error, catching the most common
+     * integration mistakes before the code ever runs.
+     * flushSerial is optional: pass NULL if your peripheral does not need it. */
     X2Cscope_Config_t config = X2CSCOPE_CONFIG_INIT(
-        sendSerial,                 /* send one byte over TCP        */
-        receiveSerial,              /* receive one byte from TCP     */
-        isReceiveDataAvailable,     /* RX data ready flag            */
-        isSendReady,                /* TX always ready (TCP buffer)  */
-        flushSerial,                /* flush: sends TCP tx buffer    */
-        (void*)X2CscopeArray,       /* scope data buffer             */
-        X2CSCOPE_BUFFER_SIZE,       /* scope buffer size             */
-        X2CSCOPE_APP_VERSION,       /* app version identifier        */
-        compilationDate             /* build timestamp               */
+        sendSerial,                 /* send one byte          (required) */
+        receiveSerial,              /* receive one byte       (required) */
+        isReceiveDataAvailable,     /* RX data ready flag     (required) */
+        isSendReady,                /* TX buffer not full     (required) */
+        flushSerial,                /* flush/commit TX buffer (NULL if unused) */
+        (void*)X2CscopeArray,       /* scope data buffer      (required) */
+        X2CSCOPE_BUFFER_SIZE,       /* scope buffer size      (required) */
+        X2CSCOPE_APP_VERSION,       /* app version identifier (required) */
+        compilationDate             /* build timestamp        (required) */
     );
     X2Cscope_InitialiseEx(&config);
-    X2CscopeComm_PostInit(); /* start TCP server, see X2CscopeComm.c */
+    X2CscopeComm_PostInit();
 }
