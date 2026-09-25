@@ -16,6 +16,7 @@
 #include "mcc_generated_files/adc/adc1.h"
 #include "mcc_generated_files/adc/adc2.h"
 #include "mcc_generated_files/adc/adc3.h"
+#include "mcc_generated_files/cmp/cmp3.h"
 
 #include "mc/mc_calc_params.h"
 
@@ -88,96 +89,24 @@ void MC_HAL_PWMDutySet(MC_DUTYCYCLEOUT_T *pPdc)
 
 void MC_HAL_OverCurrentProtectionInit(void)
 {
-    /*=========================================================================
-     * CMP3 / DAC3 Configuration
-     * Comparator 3 monitors DC bus current (CMP3D input) against a DAC 
-     * reference threshold. When bus current exceeds the limit, CMP3 output
-     * triggers the PWM Fault PCI to disable outputs for the rest of the 
-     * PWM cycle (cycle-by-cycle protection).
-     *=========================================================================*/
+    /* Apply device-specific DAC calibration from flash (MCC doesn't call this) */
+    CMP3_Calibrate();
 
-    /* --- DAC Calibration --- */
-    /* Read factory calibration data from Flash at 0x7F20E0 */
-    uint32_t *FPDMDACaddress = (uint32_t *)(0x7F20E0);
-    uint32_t FPDMDACdata = *FPDMDACaddress;
-    uint32_t POSINLADJ = (FPDMDACdata & 0x00FF0000) >> 16;
-    uint32_t NEGINLADJ = (FPDMDACdata & 0x0000FF00) >> 8;
-    uint32_t DNLADJ    = (FPDMDACdata & 0x000000FF);
+    /* Leading-edge blanking: MCC enables CBE but leaves TMCB = 0.
+     * TMCB value = desired_time * Fp, where Fp is the peripheral clock.
+     * At Fp = 200 MHz: TMCB = 100 gives 500 ns blanking. Adjust as needed. */
+    DAC3CONbits.TMCB = 100;
 
-    /* --- DACCTRL1: Common DAC control --- */
-    DACCTRL1 = 0;
-    DACCTRL1bits.NEGINLADJ = NEGINLADJ;
-    DACCTRL1bits.DNLADJ = DNLADJ;
-    DACCTRL1bits.POSINLADJ = POSINLADJ;
-    DACCTRL1bits.SIDL = 0;
-    DACCTRL1bits.FCLKDIV = 0b111;   /* Filter clock = Divide by 8 */
-
-    /* --- DACCTRL2: Timing --- */
-    DACCTRL2 = 0;
-    DACCTRL2bits.TMODTIME = 0;
-    DACCTRL2bits.SSTIME = 0;
-
-    /* --- DAC3CON: Individual DAC3 control --- */
-    DAC3CON = 0;
-    DAC3CONbits.DACEN = 0;   /* Will enable at the end */
-    DAC3CONbits.IRQM = 0;   /* Interrupts disabled */
-    DAC3CONbits.DACOEN = 0;  /* DAC output pin not connected */
-    DAC3CONbits.TMCB = 0;    /* No leading-edge blanking */
-
-    /* --- DAC3CMP: Comparator configuration --- */
-    DAC3CMP = 0;
-    DAC3CMPbits.HYSPOL = 0;  /* Hysteresis on rising edge */
-    DAC3CMPbits.HYSSEL = 3;  /* 45 mV hysteresis */
-    DAC3CMPbits.CBE = 0;     /* Blanking disabled */
-    DAC3CMPbits.FLTREN = 0;  /* Digital filter disabled */
-    DAC3CMPbits.CMPPOL = 0;  /* Output non-inverted: HIGH when IN+ > IN- */
-    DAC3CMPbits.INPSEL = 0;  /* Positive input = CMP3A / RA5 (OPA3 bus current output) */
-    DAC3CMPbits.INNSEL = 0;  /* Negative input = DACx reference */
-
-    /* --- DAC3DAT: Set overcurrent threshold --- */
-    DAC3DATbits.DACDAT = CMP_REF_DCBUS_FAULT;
-
-    /* --- DAC3SLPCON/DAC3SLPDAT: Slope disabled --- */
-    DAC3SLPCON = 0;
-    DAC3SLPDAT = 0;
-
-    /* --- Enable DAC3 and common DAC module --- */
-    DAC3CONbits.DACEN = 1;
-    DACCTRL1bits.ON = 1;
-
-    /*=========================================================================
-     * PWM Fault PCI Configuration (all 3 generators)
-     * 
-     * Mode: Cycle-by-cycle (auto-terminate at EOC when fault clears)
-     * Source: CMP3 output (bit 30 in PGxF1PCI2)
-     * 
-     * PGxF1PCI1 = 0x03001000:
-     *   - TERM = 1 (auto-terminate: cycle-by-cycle)  [bits 14:12]
-     *   - ACP  = 3 (latched acceptance)              [bits 26:24]
-     *   - PPS  = 0 (not inverted: active when HIGH)  [bit 28]
-     *
-     * PGxF1PCI2 = 0x40000000:
-     *   - PSS bit 30 = Comparator 3 output
-     *
-     * NOTE: PCI registers must be written with generators OFF.
-     * MCC enables them in PWM_Initialize(), so we disable briefly here.
-     *=========================================================================*/
-
-    /* Disable PWM generators to allow PCI register writes */
+    /* Configure PCI1 for cycle-by-cycle fault behavior (MCC only sets PCI2 source).
+     * 0x03001000: ACP[26:24]=3 (latched), TERM[14:12]=1 (auto-terminate at EOC) */
     PG1CONbits.ON = 0;
     PG2CONbits.ON = 0;
     PG3CONbits.ON = 0;
 
     PG1F1PCI1 = 0x03001000;
-    PG1F1PCI2 = 0x40000000;
-
     PG2F1PCI1 = 0x03001000;
-    PG2F1PCI2 = 0x40000000;
-
     PG3F1PCI1 = 0x03001000;
-    PG3F1PCI2 = 0x40000000;
 
-    /* Re-enable PWM generators */
     PG1CONbits.ON = 1;
     PG2CONbits.ON = 1;
     PG3CONbits.ON = 1;

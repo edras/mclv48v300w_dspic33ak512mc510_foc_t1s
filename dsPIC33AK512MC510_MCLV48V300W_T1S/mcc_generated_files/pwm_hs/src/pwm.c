@@ -113,8 +113,8 @@ void PWM_Initialize (void)
     PG1EVT2 = 0x1UL;
     // BPSEL disabled; AQSS None; AQPS Not inverted; TERM Manual Terminate; TSYNCDIS PWM EOC; TQSS None; TQPS Not inverted; LATMOD disabled; SWPCIM PCI acceptance logic; SWPCI Drives '0'; ACP Level-sensitive; TERMPS disabled; PPS Not inverted; PSYNC disabled; SWTERM disabled; BPEN disabled; 
     PG1F1PCI1 = 0x0UL;
-    // PSS 0; 
-    PG1F1PCI2 = 0x0UL;
+    // PSS 1073741824; 
+    PG1F1PCI2 = 0x40000000UL;
     // BPSEL disabled; AQSS disabled; AQPS disabled; TERM disabled; TSYNCDIS disabled; TQSS disabled; TQPS disabled; LATMOD disabled; SWPCIM disabled; SWPCI disabled; ACP disabled; TERMPS disabled; PPS Not inverted; PSYNC disabled; SWTERM disabled; BPEN disabled; 
     PG1F2PCI1 = 0x0UL;
     // PSS 0; 
@@ -171,8 +171,8 @@ void PWM_Initialize (void)
     PG2EVT2 = 0x0UL;
     // BPSEL disabled; AQSS None; AQPS Not inverted; TERM Manual Terminate; TSYNCDIS PWM EOC; TQSS None; TQPS Not inverted; LATMOD disabled; SWPCIM PCI acceptance logic; SWPCI Drives '0'; ACP Level-sensitive; TERMPS disabled; PPS Not inverted; PSYNC disabled; SWTERM disabled; BPEN disabled; 
     PG2F1PCI1 = 0x0UL;
-    // PSS 0; 
-    PG2F1PCI2 = 0x0UL;
+    // PSS 1073741824; 
+    PG2F1PCI2 = 0x40000000UL;
     // BPSEL disabled; AQSS disabled; AQPS disabled; TERM disabled; TSYNCDIS disabled; TQSS disabled; TQPS disabled; LATMOD disabled; SWPCIM disabled; SWPCI disabled; ACP disabled; TERMPS disabled; PPS Not inverted; PSYNC disabled; SWTERM disabled; BPEN disabled; 
     PG2F2PCI1 = 0x0UL;
     // PSS 0; 
@@ -229,8 +229,8 @@ void PWM_Initialize (void)
     PG3EVT2 = 0x0UL;
     // BPSEL disabled; AQSS None; AQPS Not inverted; TERM Manual Terminate; TSYNCDIS PWM EOC; TQSS None; TQPS Not inverted; LATMOD disabled; SWPCIM PCI acceptance logic; SWPCI Drives '0'; ACP Level-sensitive; TERMPS disabled; PPS Not inverted; PSYNC disabled; SWTERM disabled; BPEN disabled; 
     PG3F1PCI1 = 0x0UL;
-    // PSS 0; 
-    PG3F1PCI2 = 0x0UL;
+    // PSS 1073741824; 
+    PG3F1PCI2 = 0x40000000UL;
     // BPSEL disabled; AQSS disabled; AQPS disabled; TERM disabled; TSYNCDIS disabled; TQSS disabled; TQPS disabled; LATMOD disabled; SWPCIM disabled; SWPCI disabled; ACP disabled; TERMPS disabled; PPS Not inverted; PSYNC disabled; SWTERM disabled; BPEN disabled; 
     PG3F2PCI1 = 0x0UL;
     // PSS 0; 
