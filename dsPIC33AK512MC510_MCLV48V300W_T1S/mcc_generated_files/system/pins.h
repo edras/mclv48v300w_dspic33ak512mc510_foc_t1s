@@ -349,6 +349,159 @@
 
 /**
  * @ingroup  pinsdriver
+ * @brief    Sets the RD7 GPIO Pin which has a custom name of FLT_OC to High
+ * @pre      The RD7 must be set as Output Pin             
+ * @param    none
+ * @return   none  
+ */
+#define FLT_OC_SetHigh()          (_LATD7 = 1)
+
+/**
+ * @ingroup  pinsdriver
+ * @brief    Sets the RD7 GPIO Pin which has a custom name of FLT_OC to Low
+ * @pre      The RD7 must be set as Output Pin
+ * @param    none
+ * @return   none  
+ */
+#define FLT_OC_SetLow()           (_LATD7 = 0)
+
+/**
+ * @ingroup  pinsdriver
+ * @brief    Toggles the RD7 GPIO Pin which has a custom name of FLT_OC
+ * @pre      The RD7 must be set as Output Pin
+ * @param    none
+ * @return   none  
+ */
+#define FLT_OC_Toggle()           (_LATD7 ^= 1)
+
+/**
+ * @ingroup  pinsdriver
+ * @brief    Reads the value of the RD7 GPIO Pin which has a custom name of FLT_OC
+ * @param    none
+ * @return   none  
+ */
+#define FLT_OC_GetValue()         _RD7
+
+/**
+ * @ingroup  pinsdriver
+ * @brief    Configures the RD7 GPIO Pin which has a custom name of FLT_OC as Input
+ * @param    none
+ * @return   none  
+ */
+#define FLT_OC_SetDigitalInput()  (_TRISD7 = 1)
+
+/**
+ * @ingroup  pinsdriver
+ * @brief    Configures the RD7 GPIO Pin which has a custom name of FLT_OC as Output
+ * @param    none
+ * @return   none  
+ */
+#define FLT_OC_SetDigitalOutput() (_TRISD7 = 0)
+
+/**
+ * @ingroup  pinsdriver
+ * @brief    Sets the RD8 GPIO Pin which has a custom name of FLT_OC_OV to High
+ * @pre      The RD8 must be set as Output Pin             
+ * @param    none
+ * @return   none  
+ */
+#define FLT_OC_OV_SetHigh()          (_LATD8 = 1)
+
+/**
+ * @ingroup  pinsdriver
+ * @brief    Sets the RD8 GPIO Pin which has a custom name of FLT_OC_OV to Low
+ * @pre      The RD8 must be set as Output Pin
+ * @param    none
+ * @return   none  
+ */
+#define FLT_OC_OV_SetLow()           (_LATD8 = 0)
+
+/**
+ * @ingroup  pinsdriver
+ * @brief    Toggles the RD8 GPIO Pin which has a custom name of FLT_OC_OV
+ * @pre      The RD8 must be set as Output Pin
+ * @param    none
+ * @return   none  
+ */
+#define FLT_OC_OV_Toggle()           (_LATD8 ^= 1)
+
+/**
+ * @ingroup  pinsdriver
+ * @brief    Reads the value of the RD8 GPIO Pin which has a custom name of FLT_OC_OV
+ * @param    none
+ * @return   none  
+ */
+#define FLT_OC_OV_GetValue()         _RD8
+
+/**
+ * @ingroup  pinsdriver
+ * @brief    Configures the RD8 GPIO Pin which has a custom name of FLT_OC_OV as Input
+ * @param    none
+ * @return   none  
+ */
+#define FLT_OC_OV_SetDigitalInput()  (_TRISD8 = 1)
+
+/**
+ * @ingroup  pinsdriver
+ * @brief    Configures the RD8 GPIO Pin which has a custom name of FLT_OC_OV as Output
+ * @param    none
+ * @return   none  
+ */
+#define FLT_OC_OV_SetDigitalOutput() (_TRISD8 = 0)
+
+/**
+ * @ingroup  pinsdriver
+ * @brief    Sets the RE0 GPIO Pin which has a custom name of FLT_LATCH to High
+ * @pre      The RE0 must be set as Output Pin             
+ * @param    none
+ * @return   none  
+ */
+#define FLT_LATCH_SetHigh()          (_LATE0 = 1)
+
+/**
+ * @ingroup  pinsdriver
+ * @brief    Sets the RE0 GPIO Pin which has a custom name of FLT_LATCH to Low
+ * @pre      The RE0 must be set as Output Pin
+ * @param    none
+ * @return   none  
+ */
+#define FLT_LATCH_SetLow()           (_LATE0 = 0)
+
+/**
+ * @ingroup  pinsdriver
+ * @brief    Toggles the RE0 GPIO Pin which has a custom name of FLT_LATCH
+ * @pre      The RE0 must be set as Output Pin
+ * @param    none
+ * @return   none  
+ */
+#define FLT_LATCH_Toggle()           (_LATE0 ^= 1)
+
+/**
+ * @ingroup  pinsdriver
+ * @brief    Reads the value of the RE0 GPIO Pin which has a custom name of FLT_LATCH
+ * @param    none
+ * @return   none  
+ */
+#define FLT_LATCH_GetValue()         _RE0
+
+/**
+ * @ingroup  pinsdriver
+ * @brief    Configures the RE0 GPIO Pin which has a custom name of FLT_LATCH as Input
+ * @param    none
+ * @return   none  
+ */
+#define FLT_LATCH_SetDigitalInput()  (_TRISE0 = 1)
+
+/**
+ * @ingroup  pinsdriver
+ * @brief    Configures the RE0 GPIO Pin which has a custom name of FLT_LATCH as Output
+ * @param    none
+ * @return   none  
+ */
+#define FLT_LATCH_SetDigitalOutput() (_TRISE0 = 0)
+
+/**
+ * @ingroup  pinsdriver
  * @brief    Sets the RE1 GPIO Pin which has a custom name of SW2 to High
  * @pre      The RE1 must be set as Output Pin             
  * @param    none

@@ -118,8 +118,8 @@ void PINS_Initialize(void)
     ANSELA = 0x0FFFUL;
     ANSELB = 0xFFF7UL;
     ANSELC = 0x3F27UL;
-    ANSELD = 0xFF80UL;
-    ANSELE = 0x0001UL;
+    ANSELD = 0xFE00UL;
+    ANSELE = 0x0000UL;
     ANSELF = 0x0001UL;
 
     /****************************************************************************
