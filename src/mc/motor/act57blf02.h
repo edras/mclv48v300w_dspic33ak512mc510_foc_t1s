@@ -56,6 +56,11 @@ extern "C" {
 #define LOCK_TIME_SEC                   0.75f
 #define LOCK_CURRENT                    0.75f
 
+/* Stall detection parameters */
+#define STALL_SPEED_THRESHOLD_RPM       200.0f
+#define STALL_DETECT_TIME_SEC           0.200f
+#define OL_TIMEOUT_SEC                  1.000f
+
 /* Flux Weakening Parameters */
 #define FW_VOLATGE_MARGIN_FACTOR        0.90f
 #define MAX_FW_NEGATIVE_ID_REF          (-(0.90f * NOMINAL_CURRENT_PEAK))

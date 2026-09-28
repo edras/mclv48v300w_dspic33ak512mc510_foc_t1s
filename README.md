@@ -13,6 +13,12 @@
 
 ---
 
+![Board Setup](assets/board_motor_t1s.jpg "MCLV-48V-300W board with ACT 57BLF02 motor and LAN8651 10BASE-T1S Click board")
+
+![pyX2Cscope Screenshot](assets/pyx2cscope.png "pyX2Cscope - FOC waveforms over T1S")
+
+---
+
 ## Table of Contents
 
 - [About](#about)
@@ -22,6 +28,7 @@
 - [Project Structure](#project-structure)
 - [Architecture](#architecture)
 - [Configuration](#configuration)
+- [MCC Configuration](#mcc-configuration)
 - [Building and Programming](#building-and-programming)
 - [Running the Demo](#running-the-demo)
 - [X2Cscope Usage](#x2cscope-usage)
@@ -225,6 +232,117 @@ Defined in `src/T1S/t1s_lwip.c`:
 
 ---
 
+## MCC Configuration
+
+All peripherals are configured using **MPLAB Code Configurator (MCC) Melody**. The MCC project file is located at `dsPIC33AK512MC510_MCLV48V300W_T1S/mcc/dspic33ak512_t1s.mc3`. Generated driver source files are in `dsPIC33AK512MC510_MCLV48V300W_T1S/mcc_generated_files/` and should never be edited manually — regenerate from MCC instead.
+
+<img src="assets/MCC/mcc_resources.png" alt="MCC Project Resources" title="All resources included in the MCC project" width="30%">
+
+### Motor Control Peripherals
+
+#### Pin Manager
+
+Pin assignments for motor control signals, Hall sensor inputs (RD4/RD5/RD6 — configured but not used by the sensorless FOC), user buttons (RA12/RB6), LEDs, and communication interfaces (SPI1, I2C3, UART1).
+
+<img src="assets/MCC/pin_manager.png" alt="Pin Manager" title="MCC Pin Manager configuration" width="40%">
+
+#### PWM (PG1 / PG2 / PG3)
+
+Three PWM generators in center-aligned complementary mode at 20 kHz (400 MHz PWM clock). Dead time: 0.75 µs. Master period set by PG1. All generators use independent duty cycle registers (PG1DC, PG2DC, PG3DC). Generator 1 additionally generates trigger signals to the ADCs. Generators 2 and 3 are configured identically to Generator 1 (parts 1 and 2) without the ADC trigger output.
+
+<img src="assets/MCC/pwm_master.png" alt="PWM Master" title="MCC PWM Master settings" width="50%">
+
+<img src="assets/MCC/pwm_gen1_1.png" alt="PWM Generator 1 — Part 1" title="MCC PWM Generator 1 settings — general" width="50%">
+
+<img src="assets/MCC/pwm_gen1_2.png" alt="PWM Generator 1 — Part 2" title="MCC PWM Generator 1 settings — duty/dead-time" width="50%">
+
+<img src="assets/MCC/pwm_gen1_3.png" alt="PWM Generator 1 — Trigger" title="MCC PWM Generator 1 settings — ADC trigger" width="50%">
+
+#### ADC1 / ADC2 / ADC3
+
+All ADC modules use **Clock Generator 6** as their clock source.
+
+- **ADC1** — Phase A current (Ia) via OPA1 output
+- **ADC2** — Phase B current (Ib) via OPA2 output, potentiometer (speed reference). PWM trigger drives 20 kHz sampling
+- **ADC3** — DC bus current (Ibus) via OPA3 output, DC bus voltage (Vbus)
+
+<img src="assets/MCC/adc_clk.png" alt="ADC Clock" title="MCC ADC shared clock configuration" width="50%">
+
+<img src="assets/MCC/adc1.png" alt="ADC1 Configuration" title="MCC ADC1 configuration" width="80%">
+
+<img src="assets/MCC/adc2.png" alt="ADC2 Configuration" title="MCC ADC2 configuration" width="80%">
+
+<img src="assets/MCC/adc3.png" alt="ADC3 Configuration" title="MCC ADC3 configuration" width="80%">
+
+#### CMP3 / DAC3
+
+Comparator 3 monitors the DC bus current (CMP3A input) against a DAC3 reference for hardware overcurrent protection. DAC3 default value: 2900 counts (valid range: 0–3890 / 0x000–0xF32). Comparator blanking is enabled (CBE) with 45 mV hysteresis. Leading-edge blanking (TMCB = 500 ns) is configured in firmware post-init.
+
+<img src="assets/MCC/cmp3_dac3.png" alt="CMP3 DAC3 Configuration" title="MCC CMP3/DAC3 configuration" width="50%">
+
+#### OPA (OPA1 / OPA2 / OPA3)
+
+On-chip operational amplifiers configured for current sense signal conditioning. The screenshot shows OPA1; **OPA2 and OPA3 are configured identically**. OPA1 and OPA2 amplify phase current shunt signals for ADC1 and ADC2. OPA3 amplifies the DC bus current shunt signal for ADC3 and CMP3.
+
+<img src="assets/MCC/opa.png" alt="OPA1 Configuration" title="MCC OPA1 configuration" width="50%">
+
+### System and Communication Peripherals
+
+#### Clock Configuration
+
+External Input Clock Source is **None**. System clock: 200 MHz FCY. Peripheral clock: 200 MHz (Fp). PWM clock: 400 MHz.
+
+<img src="assets/MCC/clock_pll.png" alt="Clock PLL" title="MCC Clock PLL configuration" width="50%">
+
+<img src="assets/MCC/clock_system.png" alt="Clock System" title="MCC System clock configuration" width="50%">
+
+<img src="assets/MCC/clock_pwm.png" alt="Clock PWM" title="MCC PWM clock configuration" width="50%">
+
+<img src="assets/MCC/clock_adc.png" alt="Clock ADC" title="MCC ADC clock configuration" width="50%">
+
+<img src="assets/MCC/clock_dac.png" alt="Clock DAC" title="MCC DAC clock configuration" width="50%">
+
+<img src="assets/MCC/clock_spi.png" alt="Clock SPI" title="MCC SPI clock configuration" width="50%">
+
+<img src="assets/MCC/clock_ccp.png" alt="Clock CCP" title="MCC CCP clock configuration" width="50%">
+
+#### SPI1
+
+SPI1 at 20 MHz communicates with the LAN8651 10BASE-T1S MAC-PHY.
+
+<img src="assets/MCC/spi.png" alt="SPI1 Configuration" title="MCC SPI1 configuration" width="50%">
+
+#### DMA (DMA0 / DMA1)
+
+DMA channels 0 and 1 provide TX/RX acceleration for zero-copy TC6 frame transfers between SPI1 and the LAN8651.
+
+<img src="assets/MCC/dma0.png" alt="DMA0 Configuration" title="MCC DMA Channel 0 configuration" width="50%">
+
+<img src="assets/MCC/dma1.png" alt="DMA1 Configuration" title="MCC DMA Channel 1 configuration" width="50%">
+
+#### I2C3
+
+I2C3 reads the MAC address from the EEPROM (address 0x58) on the LAN8651 Click board at startup.
+
+<img src="assets/MCC/i2c.png" alt="I2C Configuration" title="MCC I2C3 configuration" width="50%">
+
+#### UART1
+
+UART1 provides printf debug output (startup banner and status messages). Used for development diagnostics only.
+
+<img src="assets/MCC/uart.png" alt="UART Configuration" title="MCC UART1 configuration" width="50%">
+
+#### Timers (TMR1 / SCCP1)
+
+- **TMR1** — System tick timer (10 µs resolution) for non-real-time timing (LED heartbeat, button debounce, lwIP timeouts)
+- **SCCP1** — FOC execution time measurement timer. Started/stopped around the FOC ISR to measure loop time (~15.6 µs)
+
+<img src="assets/MCC/tmr1.png" alt="TMR1 Configuration" title="MCC TMR1 — System tick timer" width="60%">
+
+<img src="assets/MCC/timerMeasurement.png" alt="Timer Measurement Configuration" title="MCC SCCP1 — FOC execution time measurement" width="60%">
+
+---
+
 ## Building and Programming
 
 This project uses the **MPLAB Extension for VS Code** with a CMake/Ninja build system generated by MCC.
@@ -333,7 +451,7 @@ The project implements two layers of overcurrent protection:
 This is the primary protection layer with **zero software latency**. It operates entirely in hardware:
 
 - **Comparator 3 (CMP3)** monitors the DC bus current via OPA3 output (CMP3A / RA5)
-- **DAC3** provides a programmable threshold reference (`OC_FAULT_LIMIT_DCBUS` = 10 A default)
+- **DAC3** provides a programmable threshold reference (default: 2900 counts, valid range: 0–3890). The threshold can be adjusted at runtime via X2Cscope by writing `DAC3DATbits.DACDAT`
 - When bus current exceeds the threshold, CMP3 output triggers the **PWM Fault PCI** on all three generators
 - **Cycle-by-cycle mode**: PWM outputs are forced LOW for the remainder of the current PWM cycle only. On the next cycle, if the current has dropped below the threshold, normal operation resumes automatically
 - No software intervention required — the FOC continues running while hardware silently clips overcurrent pulses
@@ -346,6 +464,26 @@ A secondary layer that catches sustained overcurrent conditions:
 - If any phase exceeds the limit, the application transitions to `MCAPP_FAULT` state and PWM is disabled
 - Recovery requires a power cycle or debugger reset
 
+### Stall Detection and Recovery
+
+When the overcurrent threshold is set low enough that the motor cannot develop sufficient torque, or when the rotor is mechanically blocked, the sensorless estimator loses angle tracking. Without countermeasures, the FOC would apply torque in random directions causing severe vibration.
+
+The firmware implements automatic stall detection and recovery:
+
+1. **Closed-loop stall detection** — If the estimated speed drops below 200 RPM while the target speed is above 200 RPM for longer than 200 ms, the FOC declares a stall and restarts from rotor lock
+2. **Open-loop timeout** — If the open-loop startup phase does not achieve closed-loop transition within 1.0 s, the FOC restarts from rotor lock
+3. **Automatic retry** — The lock → open-loop → closed-loop sequence repeats until conditions allow the motor to spin (e.g., overcurrent threshold raised, mechanical blockage removed)
+
+During the rotor lock phase, d-axis voltage holds the rotor at a known position without vibration. During open-loop, a forced angle drives the motor at a deterministic rate. The retry loop ensures the motor resumes as soon as the constraint is lifted.
+
+Stall parameters are defined in `src/mc/motor/act57blf02.h`:
+
+| Parameter | Default | Description |
+|-----------|---------|-------------|
+| `STALL_SPEED_THRESHOLD_RPM` | 200 RPM | Speed below which the motor is considered stalled |
+| `STALL_DETECT_TIME_SEC` | 0.200 s | Time before declaring stall in closed-loop |
+| `OL_TIMEOUT_SEC` | 1.000 s | Maximum time in open-loop before retry |
+
 ### Testing Overcurrent via pyX2Cscope
 
 To verify the hardware overcurrent protection is functioning:
@@ -353,13 +491,14 @@ To verify the hardware overcurrent protection is functioning:
 1. Connect to the board via pyX2Cscope (TCP/IP, `192.168.0.101:12666`)
 2. Start the motor (press SW1)
 3. Add the SFR `DAC3DATbits.DACDAT` to the watch view (this is the overcurrent threshold in DAC counts)
-4. The default value is ~2979 (corresponds to 10 A bus current)
+4. The default value is **2900** (configured in MCC). The DAC valid range is **0–3890** (0x000–0xF32)
 5. **Gradually lower** the value (e.g., to 2200, then 2100, etc.)
 6. Observe the phase currents (`mcApp.motorInputs.measureCurrent.Ia_actual`) — as the threshold approaches the actual bus current, the waveforms will begin to show clipping
-7. At sufficiently low thresholds, the motor will stall as all PWM pulses are truncated
-8. **Restore** the original value (~2979) to resume normal operation
+7. At sufficiently low thresholds, the motor will stall as all PWM pulses are truncated. The stall recovery mechanism will automatically retry the startup sequence
+8. **Restore** the original value (2900) — the motor will resume spinning on the next retry cycle
+9. To effectively **disable** overcurrent protection, set `DACDAT` to 3890 (maximum). The threshold becomes unreachable and cycle-by-cycle limiting stops
 
-> **Note:** The DAC reference formula is: `DACDAT = (I_limit * 2048 / 22.0) + 2048`, where 22.0 A is the full-scale current range and 2048 is the mid-scale offset.
+> **Note:** The DAC reference formula is: `DACDAT = (I_limit * 2048 / 22.0) + 2048`, where 22.0 A is the full-scale current range and 2048 is the mid-scale offset. The hardware maximum is 3890 counts (0xF32).
 
 ---
 

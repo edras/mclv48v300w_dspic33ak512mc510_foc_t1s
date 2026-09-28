@@ -36,6 +36,7 @@ void MCAPP_FOCInit(MCAPP_FOC_T *pFOC)
     pCtrlParam->iqRef = 0;
 
     pFOC->faultStatus = 0;
+    pCtrlParam->stallCounter = 0;
 
     pFOC->pPWMDuty->dutycycle3 = 0;
     pFOC->pPWMDuty->dutycycle2 = 0;
@@ -67,6 +68,7 @@ void MCAPP_FOCStateMachine(MCAPP_FOC_T *pFOC)
                 pCtrlParam->lockTime = 0;
                 pFOC->focState = FOC_OPEN_LOOP;
                 pFOC->startup.OLThetaSum = 0;
+                pFOC->startup.olTimeoutCounter = 0;
                 MC_ControllerPIReset(&pFOC->piId, pFOC->vdq.d);
                 MC_ControllerPIReset(&pFOC->piIq, pFOC->vdq.q);
                 if (directionCmd)
@@ -115,6 +117,12 @@ void MCAPP_FOCStateMachine(MCAPP_FOC_T *pFOC)
                         (pFOC->ctrlParam.iqRef + pFOC->ctrlParam.iqRefOffset));
                 }
             }
+
+            pFOC->startup.olTimeoutCounter++;
+            if (pFOC->startup.olTimeoutCounter >= pFOC->startup.olTimeoutLimit)
+            {
+                pFOC->focState = FOC_INIT;
+            }
             break;
 
         case FOC_CLOSE_LOOP:
@@ -151,6 +159,21 @@ void MCAPP_FOCStateMachine(MCAPP_FOC_T *pFOC)
 
             pCtrlParam->idRef = pFOC->idRefGen.idRef + pCtrlParam->idRefOffset;
             MCAPP_FOCForwardPath(pFOC);
+
+            if ((fabsf(pFOC->estimatorInterface.speedMech.RPM) < pCtrlParam->stallSpeedThreshold) &&
+                (fabsf(pCtrlParam->targetSpeed) > pCtrlParam->stallSpeedThreshold))
+            {
+                pCtrlParam->stallCounter++;
+                if (pCtrlParam->stallCounter >= pCtrlParam->stallTimeLimit)
+                {
+                    pCtrlParam->stallCounter = 0;
+                    pFOC->focState = FOC_INIT;
+                }
+            }
+            else
+            {
+                pCtrlParam->stallCounter = 0;
+            }
             break;
 
         case FOC_FAULT:

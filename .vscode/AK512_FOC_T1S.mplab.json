@@ -85,7 +85,8 @@
                 "dsPIC33AK512MC510_MCLV48V300W_T1S/mcc_generated_files/uart/src/uart1.c",
                 "dsPIC33AK512MC510_MCLV48V300W_T1S/mcc_generated_files/system/src/reset.c",
                 "dsPIC33AK512MC510_MCLV48V300W_T1S/mcc_generated_files/cmp/src/cmp3.c",
-                "dsPIC33AK512MC510_MCLV48V300W_T1S/mcc_generated_files/timer/src/sccp1.c"
+                "dsPIC33AK512MC510_MCLV48V300W_T1S/mcc_generated_files/timer/src/sccp1.c",
+                "dsPIC33AK512MC510_MCLV48V300W_T1S/main.c"
             ]
         }
     ]

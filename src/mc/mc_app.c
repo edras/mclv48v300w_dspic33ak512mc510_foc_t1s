@@ -206,6 +206,11 @@ static void MC_APP_ControlSchemeConfig(MC_APP_DATA_T *pMCData)
     pCS->ctrlParam.currentRamp = CURRENT_RAMP_VALUE;
     pCS->ctrlParam.MaxVoltageSquare = MAX_VOLTAGE_SQUARE;
 
+    /* Stall detection */
+    pCS->ctrlParam.stallSpeedThreshold = STALL_SPEED_THRESHOLD_RPM;
+    pCS->ctrlParam.stallTimeLimit = STALL_DETECT_TIME_COUNTS;
+    pCS->ctrlParam.stallCounter = 0;
+
     /* Fault */
     pMCData->fault.overCurrentFaultLimit = OC_FAULT_LIMIT_PHASE;
 
@@ -215,6 +220,7 @@ static void MC_APP_ControlSchemeConfig(MC_APP_DATA_T *pMCData)
     pCS->startup.OLCurrentMax = OPEN_LOOP_CURRENT;
     pCS->startup.OLSpeedRampRate = OL_SPEED_REF_RAMP_VALUE;
     pCS->startup.qDeltaT = DELTA_T_Q30;
+    pCS->startup.olTimeoutLimit = OL_TIMEOUT_COUNTS;
 
     /* PI controllers - Id */
     pCS->piId.param.kp = D_CURRCNTR_PTERM;

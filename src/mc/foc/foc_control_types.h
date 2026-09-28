@@ -36,6 +36,13 @@ typedef struct
         lockTime,
         lockTimeLimit;
 
+    float
+        stallSpeedThreshold;
+
+    uint16_t
+        stallCounter,
+        stallTimeLimit;
+
 } MCAPP_CONTROL_T;
 
 typedef struct
@@ -49,6 +56,10 @@ typedef struct
         OLCurrent,
         OLCurrentMax,
         OLCurrentRampRate;
+
+    uint16_t
+        olTimeoutCounter,
+        olTimeoutLimit;
 } MCAPP_OPENLOOPSTARTUP_T;
 
 #ifdef __cplusplus

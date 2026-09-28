@@ -79,7 +79,7 @@ void CMP3_Initialize(void)
     DAC3CMP = 0x30400UL; //INNSEL DACx; INPSEL CMP3A; CMPSTAT disabled; FLTREN disabled; CBE enabled; HYSSEL 45 mv hysteresis; HYSPOL Rising Edge; 
 
     //Slope Settings
-    DAC3DAT = 0xB5400CDUL; //DACLOW 205; DACDAT 2900; 
+    DAC3DAT = 0xF3200CDUL; //DACLOW 205; DACDAT 3890; 
     DAC3SLPCON = 0x0UL; //SLPSTRT None; SLPSTOPB None; SLPSTOPA None; HCFSEL None; FFSEN disabled; PSE Negative; TWME disabled; HME disabled; SLOPEN disabled; 
     DAC3SLPDAT = 0x0UL; //SLPDAT 0; 
     
