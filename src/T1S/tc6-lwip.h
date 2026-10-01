@@ -43,7 +43,7 @@ Microchip or any third party.
 
 #include <stdint.h>
 #include <stdbool.h>
-#include "tc6/tc6.h"
+#include "tc6.h"
 
 #ifdef __cplusplus
 extern "C" {

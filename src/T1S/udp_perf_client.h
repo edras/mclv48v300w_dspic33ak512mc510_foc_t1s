@@ -34,7 +34,7 @@
 extern "C" {
 #endif
 
-#include "cfg/lwipopts.h"
+#include "lwipopts.h"
 #include "lwip/ip_addr.h"
 #include "lwip/err.h"
 #include "lwip/udp.h"

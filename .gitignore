@@ -5,9 +5,10 @@ nbproject/
 Makefile*
 Package-*
 private/
-_build/
-!cmake/**/user.cmake
-cmake/**/.generated/*
-cmake/**/CMake*
-out/
+**/cmake/**/.generated/
+**/cmake/**/CMake*
+**/cmake/**/CMakePresets.json
+!**/cmake/**/user.cmake
+**/_build/
+**/out/
 pyx2cscope.log

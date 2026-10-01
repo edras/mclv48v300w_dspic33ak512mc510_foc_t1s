@@ -10,6 +10,9 @@
 
 #define MIKROE_T1S
 
+#define BOARD_LABEL      "Smart Motor"
+#define BOARD_NODE_NAME  ""
+
 void HAL_Init(void);
 
 #endif

@@ -1,0 +1,55 @@
+{
+    "version": "1.9",
+    "configurations": [
+        {
+            "name": "default",
+            "id": "",
+            "device": "dsPIC33AK512MC510",
+            "imageType": "library",
+            "imagePath": "../liblwip.a",
+            "packs": [
+                {
+                    "name": "dsPIC33AK-MC_DFP",
+                    "vendor": "Microchip",
+                    "version": "1.6.272"
+                }
+            ],
+            "fileSet": "default",
+            "toolchain": "default-XC-DSC"
+        }
+    ],
+    "propertyGroups": [
+        {
+            "name": "default-XC-DSC",
+            "type": "toolchain",
+            "provider": "microchip.toolchains:xc-dsc@3.31.01",
+            "properties": {
+                "global.common-include-directories": [
+                    "\"src\"",
+                    "\"src/include\"",
+                    "\"src/config\"",
+                    "\"src/port/include\""
+                ],
+                "compiler.isolate-each-function": true,
+                "compiler.optimization-level": "3",
+                "compiler.place-data-into-section": true,
+                "linker.heap-size": "0",
+                "linker.remove-unused-sections": true,
+                "compiler++.isolate-each-function": true,
+                "compiler++.optimization-level": "-O3",
+                "compiler.keep-inline": true
+            }
+        }
+    ],
+    "fileSets": [
+        {
+            "name": "default",
+            "files": [
+                {
+                    "include": "**/*",
+                    "exclude": "**/@(build|_build|out|cmake|.vscode|dspic33ak512_foc_t1s)/**/*"
+                }
+            ]
+        }
+    ]
+}

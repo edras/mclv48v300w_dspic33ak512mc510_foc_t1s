@@ -24,6 +24,7 @@
 #include "T1S/t1s_lwip.h"
 #include "T1S/udp_perf_client.h"
 #include "X2Cscope/X2Cscope.h"
+#include "MQTT/mqtt_topics.h"
 #include "mc/mc_app.h"
 #include "app.h"
 
@@ -58,11 +59,18 @@ int main(void)
     T1S_init();
     X2Cscope_Init();
 
+    /* Register MQTT topics for motor control telemetry */
+    MQTT_init_topics_hal();
+
     /* Signal that initialization is complete - ISR can now run FOC */
     mcInitDone = 1;
 
     SYSTICK_TIMEOUT led_timeout;
     SysTick_StartTimeOut(&led_timeout, HEART_BEAT_LED_COUNT_mS);
+
+    #define MQTT_PUBLISH_INTERVAL_mS 1000
+    SYSTICK_TIMEOUT mqtt_timeout;
+    SysTick_StartTimeOut(&mqtt_timeout, MQTT_PUBLISH_INTERVAL_mS);
 
     while (1)
     {
@@ -110,6 +118,16 @@ int main(void)
 
         /* LED2 indicates motor running */
         mcApp.runCmd == 1 ? LED2_SetHigh() : LED2_SetLow();
+
+        /* MQTT: periodically publish motor telemetry */
+        if (SysTick_IsTimeoutReached(&mqtt_timeout))
+        {
+            SysTick_ResetTimeOut(&mqtt_timeout);
+            if (MQTT_available())
+            {
+                MQTT_publish_topics();
+            }
+        }
 
         /* LED1 heartbeat */
         if (SysTick_IsTimeoutReached(&led_timeout))
