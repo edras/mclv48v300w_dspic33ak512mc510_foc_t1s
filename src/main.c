@@ -33,6 +33,7 @@
 /* Heartbeat LED */
 uint16_t heartBeatCount = 0;
 #define HEART_BEAT_LED_COUNT_mS 250
+#define MQTT_PUBLISH_INTERVAL_mS 500
 
 /* Flag to prevent ISR execution before initialization completes */
 static volatile uint8_t mcInitDone = 0;
@@ -68,7 +69,6 @@ int main(void)
     SYSTICK_TIMEOUT led_timeout;
     SysTick_StartTimeOut(&led_timeout, HEART_BEAT_LED_COUNT_mS);
 
-    #define MQTT_PUBLISH_INTERVAL_mS 1000
     SYSTICK_TIMEOUT mqtt_timeout;
     SysTick_StartTimeOut(&mqtt_timeout, MQTT_PUBLISH_INTERVAL_mS);
 
@@ -79,41 +79,49 @@ int main(void)
         T1S_execute();
         APP_Buttons_Task();
 
-        /* SW1: Start/Stop Motor */
-        if (APP_Button_WasPressed(APP_BTN_SW1))
+        if (is_remote_control())
         {
-            if (mcApp.runCmdBuffer == 0)
+            APP_Button_WasPressed(APP_BTN_SW1);
+            APP_Button_WasPressed(APP_BTN_SW2);
+        }
+        else
+        {
+            /* SW1: Start/Stop Motor */
+            if (APP_Button_WasPressed(APP_BTN_SW1))
+            {
+                if (mcApp.runCmdBuffer == 0)
+                {
+                    mcApp.runCmdBuffer = 1;
+                }
+                else
+                {
+                    mcApp.runCmdBuffer = 0;
+                }
+            }
+
+            /* SW2: Toggle Direction - stop, reverse, restart */
+            if (APP_Button_WasPressed(APP_BTN_SW2))
+            {
+                /* Toggle direction */
+                if (mcApp.directionCmdBuffer == 0)
+                    mcApp.directionCmdBuffer = 1;
+                else
+                    mcApp.directionCmdBuffer = 0;
+
+                /* If motor is running, stop it and request auto-restart */
+                if (mcApp.runCmdBuffer == 1)
+                {
+                    mcApp.runCmdBuffer = 0;
+                    directionChangePending = 1;
+                }
+            }
+
+            /* Auto-restart after direction change once motor has stopped */
+            if (directionChangePending && (mcApp.appState == MCAPP_CMD_WAIT))
             {
                 mcApp.runCmdBuffer = 1;
+                directionChangePending = 0;
             }
-            else
-            {
-                mcApp.runCmdBuffer = 0;
-            }
-        }
-
-        /* SW2: Toggle Direction - stop, reverse, restart */
-        if (APP_Button_WasPressed(APP_BTN_SW2))
-        {
-            /* Toggle direction */
-            if (mcApp.directionCmdBuffer == 0)
-                mcApp.directionCmdBuffer = 1;
-            else
-                mcApp.directionCmdBuffer = 0;
-
-            /* If motor is running, stop it and request auto-restart */
-            if (mcApp.runCmdBuffer == 1)
-            {
-                mcApp.runCmdBuffer = 0;
-                directionChangePending = 1;
-            }
-        }
-
-        /* Auto-restart after direction change once motor has stopped */
-        if (directionChangePending && (mcApp.appState == MCAPP_CMD_WAIT))
-        {
-            mcApp.runCmdBuffer = 1;
-            directionChangePending = 0;
         }
 
         /* LED2 indicates motor running */

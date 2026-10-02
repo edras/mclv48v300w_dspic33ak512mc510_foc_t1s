@@ -12,7 +12,9 @@
 
 #define BOARD_LABEL      "Smart Motor"
 #define BOARD_NODE_NAME  ""
+#define FW_VERSION       __DATE__
 
+uint32_t get_mcu_uid(void);
 void HAL_Init(void);
 
 #endif

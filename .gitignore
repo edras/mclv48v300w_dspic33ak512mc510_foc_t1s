@@ -12,3 +12,8 @@ private/
 **/_build/
 **/out/
 pyx2cscope.log
+_build/
+!cmake/**/user.cmake
+cmake/**/.generated/*
+cmake/**/CMake*
+out/
