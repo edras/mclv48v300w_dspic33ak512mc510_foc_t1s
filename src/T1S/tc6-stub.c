@@ -46,9 +46,9 @@ Microchip or any third party.
 #include <stdio.h>
 #include <string.h>
 #include <assert.h>
-#include "tc6/tc6-conf.h"
+#include "tc6-conf.h"
 #include "tc6-stub.h"
-#include "tc6/tc6.h"
+#include "tc6.h"
 
 
 /*>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>*/

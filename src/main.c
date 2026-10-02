@@ -24,6 +24,7 @@
 #include "T1S/t1s_lwip.h"
 #include "T1S/udp_perf_client.h"
 #include "X2Cscope/X2Cscope.h"
+#include "MQTT/mqtt_topics.h"
 #include "mc/mc_app.h"
 #include "app.h"
 
@@ -32,6 +33,9 @@
 /* Heartbeat LED */
 uint16_t heartBeatCount = 0;
 #define HEART_BEAT_LED_COUNT_mS 250
+
+/* MQTT publish interval */
+#define MQTT_PUBLISH_INTERVAL_mS 250
 
 /* Flag to prevent ISR execution before initialization completes */
 static volatile uint8_t mcInitDone = 0;
@@ -58,6 +62,14 @@ int main(void)
     T1S_init();
     X2Cscope_Init();
 
+#ifdef MQTT_ENABLED
+    /* Register MQTT topics for motor control telemetry */
+    MQTT_init_topics_hal();
+    /* Set the MQTT publish rate */
+    SYSTICK_TIMEOUT mqtt_timeout;
+    SysTick_StartTimeOut(&mqtt_timeout, MQTT_PUBLISH_INTERVAL_mS);
+#endif
+
     /* Signal that initialization is complete - ISR can now run FOC */
     mcInitDone = 1;
 
@@ -71,45 +83,56 @@ int main(void)
         T1S_execute();
         APP_Buttons_Task();
 
-        /* SW1: Start/Stop Motor */
-        if (APP_Button_WasPressed(APP_BTN_SW1))
+        /* If software is controlled remotely, ignores buttons */
+        if (is_remote_control())
         {
-            if (mcApp.runCmdBuffer == 0)
+            APP_Button_WasPressed(APP_BTN_SW1);
+            APP_Button_WasPressed(APP_BTN_SW2);
+        }
+        else
+        {
+            /* SW1: Start/Stop Motor */
+            if (APP_Button_WasPressed(APP_BTN_SW1))
+            {
+                mcApp.runCmdBuffer ^= 1;
+            }
+
+            /* SW2: Toggle Direction - stop, reverse, restart */
+            if (APP_Button_WasPressed(APP_BTN_SW2))
+            {
+                /* Toggle direction */
+                mcApp.directionCmdBuffer ^= 1;
+
+                /* If motor is running, stop it and request auto-restart */
+                if (mcApp.runCmdBuffer == 1)
+                {
+                    mcApp.runCmdBuffer = 0;
+                    directionChangePending = 1;
+                }
+            }
+
+            /* Auto-restart after direction change once motor has stopped */
+            if (directionChangePending && (mcApp.appState == MCAPP_CMD_WAIT))
             {
                 mcApp.runCmdBuffer = 1;
+                directionChangePending = 0;
             }
-            else
-            {
-                mcApp.runCmdBuffer = 0;
-            }
-        }
-
-        /* SW2: Toggle Direction - stop, reverse, restart */
-        if (APP_Button_WasPressed(APP_BTN_SW2))
-        {
-            /* Toggle direction */
-            if (mcApp.directionCmdBuffer == 0)
-                mcApp.directionCmdBuffer = 1;
-            else
-                mcApp.directionCmdBuffer = 0;
-
-            /* If motor is running, stop it and request auto-restart */
-            if (mcApp.runCmdBuffer == 1)
-            {
-                mcApp.runCmdBuffer = 0;
-                directionChangePending = 1;
-            }
-        }
-
-        /* Auto-restart after direction change once motor has stopped */
-        if (directionChangePending && (mcApp.appState == MCAPP_CMD_WAIT))
-        {
-            mcApp.runCmdBuffer = 1;
-            directionChangePending = 0;
         }
 
         /* LED2 indicates motor running */
         mcApp.runCmd == 1 ? LED2_SetHigh() : LED2_SetLow();
+
+#ifdef MQTT_ENABLED
+        /* MQTT: periodically publish motor telemetry */
+        if (SysTick_IsTimeoutReached(&mqtt_timeout))
+        {
+            SysTick_ResetTimeOut(&mqtt_timeout);
+            if (MQTT_available())
+            {
+                MQTT_publish_topics();
+            }
+        }
+#endif
 
         /* LED1 heartbeat */
         if (SysTick_IsTimeoutReached(&led_timeout))

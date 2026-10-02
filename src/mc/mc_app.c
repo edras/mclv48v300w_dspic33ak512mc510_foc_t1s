@@ -10,6 +10,7 @@
 
 /* Hardware Abstraction Layer */
 #include "hal/mc/mc_hal.h"
+#include "MQTT/mqtt_topics_hal.h"
 
 /* Application data instance */
 MC_APP_DATA_T mcApp;
@@ -293,19 +294,21 @@ static void MC_APP_ReceivedDataProcess(MC_APP_DATA_T *pMCData)
     MCAPP_CONTROL_SCHEME_T *pControlScheme = pMCData->pControlScheme;
     MCAPP_MOTOR_T *pMotor = pMCData->pMotor;
     MCAPP_MEASURE_T *pMotorInputs = pMCData->pMotorInputs;
-    float potValueNormalized;
 
     pMCData->runCmd = pMCData->runCmdBuffer;
     pMCData->directionCmd = pMCData->directionCmdBuffer;
 
-    potValueNormalized = ((float)pMotorInputs->measurePot / (float)MAX_ADC_COUNT);
-
-    pMCData->targetSpeed = pMotor->MinSpeed +
-                           ((pMotor->MaxSpeed - pMotor->MinSpeed) * potValueNormalized);
-
-    if (pMCData->directionCmd)
+    if (!is_remote_control())
     {
-        pMCData->targetSpeed = -pMCData->targetSpeed;
+        float potValueNormalized = ((float)pMotorInputs->measurePot / (float)MAX_ADC_COUNT);
+
+        pMCData->targetSpeed = pMotor->MinSpeed +
+                               ((pMotor->MaxSpeed - pMotor->MinSpeed) * potValueNormalized);
+
+        if (pMCData->directionCmd)
+        {
+            pMCData->targetSpeed = -pMCData->targetSpeed;
+        }
     }
 
     if (pMCData->runCmd == 1)

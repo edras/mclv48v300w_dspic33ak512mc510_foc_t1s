@@ -1,0 +1,28 @@
+{
+	"folders": [
+		{
+			"path": "."
+		},
+		{
+			"name": "libtc6",
+			"path": "libs/libtc6"
+		},
+		{
+			"name": "liblwip",
+			"path": "libs/liblwip"
+		}
+	],
+	"settings": {
+		"mplab.clangd.arguments": [
+			"--header-insertion=never"
+		],
+		"mplab.clangd.compileCommandsDir": "${workspaceFolder}\\_build\\AK512_FOC_T1S\\default",
+		"memory-inspector.debugTypes": [
+			"arm-debugger",
+			"embedded-debug",
+			"gdb",
+			"mplab-core-da"
+		],
+		"mplab.clangd.path": "c:\\Program Files\\Microchip\\xc-dsc\\v3.31.01\\bin\\xc-dsc-clangd.exe"
+	}
+}
