@@ -33,7 +33,9 @@
 /* Heartbeat LED */
 uint16_t heartBeatCount = 0;
 #define HEART_BEAT_LED_COUNT_mS 250
-#define MQTT_PUBLISH_INTERVAL_mS 500
+
+/* MQTT publish interval */
+#define MQTT_PUBLISH_INTERVAL_mS 250
 
 /* Flag to prevent ISR execution before initialization completes */
 static volatile uint8_t mcInitDone = 0;
@@ -60,17 +62,19 @@ int main(void)
     T1S_init();
     X2Cscope_Init();
 
+#ifdef MQTT_ENABLED
     /* Register MQTT topics for motor control telemetry */
     MQTT_init_topics_hal();
+    /* Set the MQTT publish rate */
+    SYSTICK_TIMEOUT mqtt_timeout;
+    SysTick_StartTimeOut(&mqtt_timeout, MQTT_PUBLISH_INTERVAL_mS);
+#endif
 
     /* Signal that initialization is complete - ISR can now run FOC */
     mcInitDone = 1;
 
     SYSTICK_TIMEOUT led_timeout;
     SysTick_StartTimeOut(&led_timeout, HEART_BEAT_LED_COUNT_mS);
-
-    SYSTICK_TIMEOUT mqtt_timeout;
-    SysTick_StartTimeOut(&mqtt_timeout, MQTT_PUBLISH_INTERVAL_mS);
 
     while (1)
     {
@@ -79,6 +83,7 @@ int main(void)
         T1S_execute();
         APP_Buttons_Task();
 
+        /* If software is controlled remotely, ignores buttons */
         if (is_remote_control())
         {
             APP_Button_WasPressed(APP_BTN_SW1);
@@ -89,24 +94,14 @@ int main(void)
             /* SW1: Start/Stop Motor */
             if (APP_Button_WasPressed(APP_BTN_SW1))
             {
-                if (mcApp.runCmdBuffer == 0)
-                {
-                    mcApp.runCmdBuffer = 1;
-                }
-                else
-                {
-                    mcApp.runCmdBuffer = 0;
-                }
+                mcApp.runCmdBuffer ^= 1;
             }
 
             /* SW2: Toggle Direction - stop, reverse, restart */
             if (APP_Button_WasPressed(APP_BTN_SW2))
             {
                 /* Toggle direction */
-                if (mcApp.directionCmdBuffer == 0)
-                    mcApp.directionCmdBuffer = 1;
-                else
-                    mcApp.directionCmdBuffer = 0;
+                mcApp.directionCmdBuffer ^= 1;
 
                 /* If motor is running, stop it and request auto-restart */
                 if (mcApp.runCmdBuffer == 1)
@@ -127,6 +122,7 @@ int main(void)
         /* LED2 indicates motor running */
         mcApp.runCmd == 1 ? LED2_SetHigh() : LED2_SetLow();
 
+#ifdef MQTT_ENABLED
         /* MQTT: periodically publish motor telemetry */
         if (SysTick_IsTimeoutReached(&mqtt_timeout))
         {
@@ -136,6 +132,7 @@ int main(void)
                 MQTT_publish_topics();
             }
         }
+#endif
 
         /* LED1 heartbeat */
         if (SysTick_IsTimeoutReached(&led_timeout))

@@ -25,6 +25,8 @@
 #include "MQTT/mqtt_topics_hal.h"
 #include "T1S/t1s_lwip.h"
 
+#ifdef MQTT_ENABLED
+
 // MQTT Server for T1S: 192.168.0.5
 #define LWIP_MQTT_EXAMPLE_IPADDR_INIT IPADDR4_INIT(PP_HTONL(0xC0A80005))
 
@@ -212,6 +214,7 @@ static void mqtt_burst_request_cb(void *arg, err_t err)
 {
     LWIP_UNUSED_ARG(arg);
     LWIP_UNUSED_ARG(err);
+    if (!mqtt_online) return;
     while((topic_published = HASHTABLE_next(topics, topic_published)) != NULL)
     {
         if (!mqtt_should_publish(topic_published)) continue;
@@ -319,7 +322,7 @@ void MQTT_publish_topics(void)
         {
             topic->get_str_value(topic_value);
             size_t size = strlen(topic_value);
-            if(size && T1S_available())
+            if(size && mqtt_online)
             {
                 topic_published = topic;
                 mqtt_build_topic_name(topic);
@@ -339,7 +342,7 @@ void MQTT_publish_topic(TopicItem item)
         {
             topic->get_str_value(topic_value);
             size_t size = strlen(topic_value);
-            if(size && T1S_available())
+            if(size && mqtt_online)
             {
                 mqtt_build_topic_name(topic);
                 mqtt_publish(mqtt_client, topic_name, topic_value, size, 0, 0, mqtt_single_request_cb, NULL);
@@ -412,6 +415,8 @@ TopicItem* MQTT_get_next_topic(TopicItem *topic)
 {
     return (TopicItem*)HASHTABLE_next(topics, topic);
 }
+
+#endif
 
 /* *****************************************************************************
  End of File

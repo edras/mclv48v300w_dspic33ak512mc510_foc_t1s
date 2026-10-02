@@ -9,6 +9,7 @@
 #include "mcc_generated_files/timer/sccp1.h"
 
 #define MIKROE_T1S
+#define MQTT_ENABLED
 
 #define BOARD_LABEL      "Smart Motor"
 #define BOARD_NODE_NAME  ""

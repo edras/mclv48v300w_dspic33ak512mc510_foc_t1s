@@ -20,6 +20,8 @@
 
 #include "MQTT/mqtt_topics_hal.h"
 
+#ifdef MQTT_ENABLED
+
 /* The TopicItem structure represents a topic in the MQTT system.
  * It contains information about the topic, including its name,
  * the node it belongs to, and callback functions for handling data.
@@ -135,6 +137,7 @@ TopicItem* MQTT_get_topic(TopicItem topic);
  */
 TopicItem* MQTT_get_next_topic(TopicItem* topic);
 
+#endif /* MQTT_ENABLED */
 
 #endif /* _MQTT_TOPICS_H */
 

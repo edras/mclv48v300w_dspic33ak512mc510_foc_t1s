@@ -25,6 +25,8 @@
 #include "mc/mc_app.h"
 #include "app.h"
 
+#ifdef MQTT_ENABLED
+
 /* ---- Application state for remote control ---- */
 
 static bool remote_control = false;
@@ -42,7 +44,7 @@ int16_t get_aiml_status(void)      { return aiml_status; }
 
 static void get_vcc_str(char *data)
 {
-    sprintf(data, "%.2f", mcApp.controlScheme.vdc);
+    sprintf(data, "%.2f", mcApp.motorInputs.measureVdc.value);
 }
 
 static void get_board_name_str(char *data)
@@ -132,7 +134,10 @@ static void handle_speed_sp(char *data)
     if (data == NULL) return;
     if (is_remote_control())
     {
-        mcApp.targetSpeed = (float)atof(data);
+        float speed = (float)atof(data);
+        if (speed > mcApp.motor.MaxSpeed) speed = mcApp.motor.MaxSpeed;
+        if (speed < -mcApp.motor.MaxSpeed) speed = -mcApp.motor.MaxSpeed;
+        mcApp.targetSpeed = speed;
     }
 }
 
@@ -178,6 +183,8 @@ void MQTT_init_topics_hal(void)
         MQTT_insert_topic(topics[i]);
     }
 }
+
+#endif
 
 /* *****************************************************************************
  End of File

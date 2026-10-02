@@ -17,8 +17,12 @@
 
 #include "hal.h"
 
+#ifdef MQTT_ENABLED
 void MQTT_init_topics_hal(void);
 bool is_remote_control(void);
+#else
+static inline bool is_remote_control(void) { return false; }
+#endif
 
 #endif /* _MQTT_TOPICS_HAL_H */
 
