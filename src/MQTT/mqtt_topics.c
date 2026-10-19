@@ -170,7 +170,13 @@ static void mqtt_incoming_data_cb(void *arg, const u8_t *data, u16_t len, u8_t f
     {
         if(topic_received->sub_callback)
         {
-            topic_received->sub_callback((char*)data);
+            /* lwIP hands over the raw, unterminated payload; the callbacks parse
+             * it with atof/atoi/strncmp, so give them a bounded C string. */
+            char value[TOPIC_VALUE_LENGTH];
+            size_t n = (len < (TOPIC_VALUE_LENGTH - 1u)) ? len : (TOPIC_VALUE_LENGTH - 1u);
+            memcpy(value, data, n);
+            value[n] = '\0';
+            topic_received->sub_callback(value);
         }
     }
 }

@@ -51,7 +51,9 @@
 
 #ifdef MIKROE_T1S
 
-#define T1S_BOARD_INSTANCE   0
+/* Blue Wedge SMART_MOTOR_BOARD slot: 192.168.0.105, PLCA node 6. Shared with
+ * the SAME54 Smart Motor, so only one of the two may be on the bus. */
+#define T1S_BOARD_INSTANCE   5
 #define T1S_AVAILABLE        true
 
 #define T1S_RST_Clear        XPRO1_RST_SetLow

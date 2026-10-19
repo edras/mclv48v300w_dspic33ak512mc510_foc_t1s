@@ -162,7 +162,7 @@ void MQTT_init_topics_hal(void)
     //  nodename        topic_name        publish_cb            subscribe_cb       autoPublish
         {"smart_motor", "reserved",       NULL,                 NULL,              false},
         {"smart_motor", "vcc",            get_vcc_str,          NULL,              false},
-        {"smart_motor", "board_name",     get_board_name_str,   NULL,              false},
+        {"smart_motor", "board_name",     get_board_name_str,   NULL,              true},   /* Blue Wedge Node-RED uses it as heartbeat */
         {"smart_motor", "switch",         get_switch_str,       NULL,              true},
         {"smart_motor", "led",            NULL,                 handle_led,        false},
         {"smart_motor", "on",             get_on_str,           handle_on,         true},
