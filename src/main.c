@@ -26,6 +26,7 @@
 #include "X2Cscope/X2Cscope.h"
 #include "MQTT/mqtt_topics.h"
 #include "mc/mc_app.h"
+#include "ml/ml_app.h"
 #include "app.h"
 
 #include <stdio.h>
@@ -58,6 +59,9 @@ int main(void)
     /* Initialize motor control (FOC) */
     MC_APP_Init();
 
+    /* Initialize ML inference (Knowledge Pack) */
+    ML_APP_Init();
+
     /* Initialize T1S network and X2Cscope over TCP */
     T1S_init();
     X2Cscope_Init();
@@ -82,6 +86,9 @@ int main(void)
         X2Cscope_Communicate();
         T1S_execute();
         APP_Buttons_Task();
+
+        /* ML inference on queued motor samples */
+        ML_APP_Task();
 
         /* If software is controlled remotely, ignores buttons */
         if (is_remote_control())
@@ -170,5 +177,8 @@ void ADC2_ChannelCallback(enum ADC2_CHANNEL channel, uint16_t adcVal)
 
     /* Update X2Cscope sample buffer */
     X2Cscope_Update();
+
+    /* Queue a 2 kHz sample for ML inference */
+    ML_APP_Sample();
 
 }

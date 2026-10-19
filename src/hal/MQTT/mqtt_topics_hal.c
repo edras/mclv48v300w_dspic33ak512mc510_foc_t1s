@@ -23,6 +23,7 @@
 #include "mqtt_topics_hal.h"
 #include "MQTT/mqtt_topics.h"
 #include "mc/mc_app.h"
+#include "ml/ml_app.h"
 #include "app.h"
 
 #ifdef MQTT_ENABLED
@@ -31,13 +32,12 @@
 
 static bool remote_control = false;
 static uint8_t aiml_mode = 0;
-static uint8_t aiml_result = 0;
 static int16_t aiml_status = 0;
 
 bool is_remote_control(void)       { return remote_control; }
 void set_remote_control(bool state) { remote_control = state; }
 uint8_t get_aiml_mode(void)        { return aiml_mode; }
-uint8_t get_aiml_result(void)      { return aiml_result; }
+uint8_t get_aiml_result(void)      { return (uint8_t)ML_APP_GetClass(); }
 int16_t get_aiml_status(void)      { return aiml_status; }
 
 /* ---- Publish callbacks ---- */
@@ -79,9 +79,10 @@ static void get_pot_str(char *data)
     sprintf(data, "%.0f", mcApp.targetSpeed);
 }
 
+/* ML class index: 0 unknown, 1 fingertap, 2 normal, 3 notch_long, 4 notch_short */
 static void get_failure_str(char *data)
 {
-    sprintf(data, "%d", aiml_result);
+    sprintf(data, "%d", (int)ML_APP_GetClass());
 }
 
 static void get_aiml_status_str(char *data)

@@ -40,7 +40,8 @@
                     "\"libs/libtc6/inc\"",
                     "\"libs/liblwip/src/config\"",
                     "\"libs/liblwip/src/include\"",
-                    "\"libs/liblwip/src/port/include\""
+                    "\"libs/liblwip/src/port/include\"",
+                    "\"knowledgepack/libmplabml/inc\""
                 ],
                 "compiler.isolate-each-function": true,
                 "compiler.optimization-level": "3",
