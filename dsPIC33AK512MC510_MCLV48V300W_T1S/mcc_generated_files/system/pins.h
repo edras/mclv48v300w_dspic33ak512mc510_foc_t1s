@@ -145,54 +145,54 @@
 
 /**
  * @ingroup  pinsdriver
- * @brief    Sets the RB3 GPIO Pin which has a custom name of XPRO1_INT to High
- * @pre      The RB3 must be set as Output Pin             
+ * @brief    Sets the RA8 GPIO Pin which has a custom name of XPRO1_INT to High
+ * @pre      The RA8 must be set as Output Pin             
  * @param    none
  * @return   none  
  */
-#define XPRO1_INT_SetHigh()          (_LATB3 = 1)
+#define XPRO1_INT_SetHigh()          (_LATA8 = 1)
 
 /**
  * @ingroup  pinsdriver
- * @brief    Sets the RB3 GPIO Pin which has a custom name of XPRO1_INT to Low
- * @pre      The RB3 must be set as Output Pin
+ * @brief    Sets the RA8 GPIO Pin which has a custom name of XPRO1_INT to Low
+ * @pre      The RA8 must be set as Output Pin
  * @param    none
  * @return   none  
  */
-#define XPRO1_INT_SetLow()           (_LATB3 = 0)
+#define XPRO1_INT_SetLow()           (_LATA8 = 0)
 
 /**
  * @ingroup  pinsdriver
- * @brief    Toggles the RB3 GPIO Pin which has a custom name of XPRO1_INT
- * @pre      The RB3 must be set as Output Pin
+ * @brief    Toggles the RA8 GPIO Pin which has a custom name of XPRO1_INT
+ * @pre      The RA8 must be set as Output Pin
  * @param    none
  * @return   none  
  */
-#define XPRO1_INT_Toggle()           (_LATB3 ^= 1)
+#define XPRO1_INT_Toggle()           (_LATA8 ^= 1)
 
 /**
  * @ingroup  pinsdriver
- * @brief    Reads the value of the RB3 GPIO Pin which has a custom name of XPRO1_INT
+ * @brief    Reads the value of the RA8 GPIO Pin which has a custom name of XPRO1_INT
  * @param    none
  * @return   none  
  */
-#define XPRO1_INT_GetValue()         _RB3
+#define XPRO1_INT_GetValue()         _RA8
 
 /**
  * @ingroup  pinsdriver
- * @brief    Configures the RB3 GPIO Pin which has a custom name of XPRO1_INT as Input
+ * @brief    Configures the RA8 GPIO Pin which has a custom name of XPRO1_INT as Input
  * @param    none
  * @return   none  
  */
-#define XPRO1_INT_SetDigitalInput()  (_TRISB3 = 1)
+#define XPRO1_INT_SetDigitalInput()  (_TRISA8 = 1)
 
 /**
  * @ingroup  pinsdriver
- * @brief    Configures the RB3 GPIO Pin which has a custom name of XPRO1_INT as Output
+ * @brief    Configures the RA8 GPIO Pin which has a custom name of XPRO1_INT as Output
  * @param    none
  * @return   none  
  */
-#define XPRO1_INT_SetDigitalOutput() (_TRISB3 = 0)
+#define XPRO1_INT_SetDigitalOutput() (_TRISA8 = 0)
 
 /**
  * @ingroup  pinsdriver
@@ -655,54 +655,54 @@
 
 /**
  * @ingroup  pinsdriver
- * @brief    Sets the RG0 GPIO Pin which has a custom name of XPRO1_RST to High
- * @pre      The RG0 must be set as Output Pin             
+ * @brief    Sets the RD9 GPIO Pin which has a custom name of XPRO1_RST to High
+ * @pre      The RD9 must be set as Output Pin             
  * @param    none
  * @return   none  
  */
-#define XPRO1_RST_SetHigh()          (_LATG0 = 1)
+#define XPRO1_RST_SetHigh()          (_LATD9 = 1)
 
 /**
  * @ingroup  pinsdriver
- * @brief    Sets the RG0 GPIO Pin which has a custom name of XPRO1_RST to Low
- * @pre      The RG0 must be set as Output Pin
+ * @brief    Sets the RD9 GPIO Pin which has a custom name of XPRO1_RST to Low
+ * @pre      The RD9 must be set as Output Pin
  * @param    none
  * @return   none  
  */
-#define XPRO1_RST_SetLow()           (_LATG0 = 0)
+#define XPRO1_RST_SetLow()           (_LATD9 = 0)
 
 /**
  * @ingroup  pinsdriver
- * @brief    Toggles the RG0 GPIO Pin which has a custom name of XPRO1_RST
- * @pre      The RG0 must be set as Output Pin
+ * @brief    Toggles the RD9 GPIO Pin which has a custom name of XPRO1_RST
+ * @pre      The RD9 must be set as Output Pin
  * @param    none
  * @return   none  
  */
-#define XPRO1_RST_Toggle()           (_LATG0 ^= 1)
+#define XPRO1_RST_Toggle()           (_LATD9 ^= 1)
 
 /**
  * @ingroup  pinsdriver
- * @brief    Reads the value of the RG0 GPIO Pin which has a custom name of XPRO1_RST
+ * @brief    Reads the value of the RD9 GPIO Pin which has a custom name of XPRO1_RST
  * @param    none
  * @return   none  
  */
-#define XPRO1_RST_GetValue()         _RG0
+#define XPRO1_RST_GetValue()         _RD9
 
 /**
  * @ingroup  pinsdriver
- * @brief    Configures the RG0 GPIO Pin which has a custom name of XPRO1_RST as Input
+ * @brief    Configures the RD9 GPIO Pin which has a custom name of XPRO1_RST as Input
  * @param    none
  * @return   none  
  */
-#define XPRO1_RST_SetDigitalInput()  (_TRISG0 = 1)
+#define XPRO1_RST_SetDigitalInput()  (_TRISD9 = 1)
 
 /**
  * @ingroup  pinsdriver
- * @brief    Configures the RG0 GPIO Pin which has a custom name of XPRO1_RST as Output
+ * @brief    Configures the RD9 GPIO Pin which has a custom name of XPRO1_RST as Output
  * @param    none
  * @return   none  
  */
-#define XPRO1_RST_SetDigitalOutput() (_TRISG0 = 0)
+#define XPRO1_RST_SetDigitalOutput() (_TRISD9 = 0)
 
 /**
  * @ingroup  pinsdriver

@@ -75,10 +75,10 @@ void PINS_Initialize(void)
     TRISA = 0x3FDBUL;
     TRISB = 0xFFFEUL;
     TRISC = 0x7FE7UL;
-    TRISD = 0xFFF0UL;
+    TRISD = 0xFDF0UL;
     TRISE = 0x0013UL;
     TRISF = 0x000FUL;
-    TRISG = 0x0006UL;
+    TRISG = 0x0007UL;
 
 
     /****************************************************************************
@@ -115,10 +115,10 @@ void PINS_Initialize(void)
     /****************************************************************************
      * Setting the Analog/Digital Configuration SFR(s)
      ***************************************************************************/
-    ANSELA = 0x0FFFUL;
-    ANSELB = 0xFFF7UL;
+    ANSELA = 0x0EFFUL;
+    ANSELB = 0xFFE7UL;
     ANSELC = 0x3F27UL;
-    ANSELD = 0xFE00UL;
+    ANSELD = 0xFC00UL;
     ANSELE = 0x0000UL;
     ANSELF = 0x0001UL;
 
@@ -139,18 +139,18 @@ void PINS_Initialize(void)
     /*******************************************************************************
     * Interrupt On Change: negative
     *******************************************************************************/
-    CNEN1Bbits.CNEN1B3 = 1; //Pin : RB3; 
+    CNEN1Abits.CNEN1A8 = 1; //Pin : RA8; 
 
     /****************************************************************************
      * Interrupt On Change: flag
      ***************************************************************************/
-    CNFBbits.CNFB3 = 0;    //Pin : XPRO1_INT
+    CNFAbits.CNFA8 = 0;    //Pin : XPRO1_INT
 
     /****************************************************************************
      * Interrupt On Change: config
      ***************************************************************************/
-    CNCONBbits.CNSTYLE = 1; //Config for PORTB
-    CNCONBbits.ON = 1; //Config for PORTB
+    CNCONAbits.CNSTYLE = 1; //Config for PORTA
+    CNCONAbits.ON = 1; //Config for PORTA
 
     /* Initialize IOC Interrupt Handler*/
     XPRO1_INT_SetInterruptHandler(&XPRO1_INT_CallBack);
@@ -158,8 +158,8 @@ void PINS_Initialize(void)
     /****************************************************************************
      * Interrupt On Change: Interrupt Enable
      ***************************************************************************/
-    IFS3bits.CNBIF = 0; //Clear CNBI interrupt flag
-    IEC3bits.CNBIE = 1; //Enable CNBI interrupt
+    IFS3bits.CNAIF = 0; //Clear CNAI interrupt flag
+    IEC3bits.CNAIE = 1; //Enable CNAI interrupt
 }
 
 void __attribute__ ((weak)) XPRO1_INT_CallBack(void)
@@ -169,12 +169,12 @@ void __attribute__ ((weak)) XPRO1_INT_CallBack(void)
 
 void XPRO1_INT_SetInterruptHandler(void (* InterruptHandler)(void))
 { 
-    IEC3bits.CNBIE = 0; //Disable CNBI interrupt
+    IEC3bits.CNAIE = 0; //Disable CNAI interrupt
     XPRO1_INT_InterruptHandler = InterruptHandler; 
-    IEC3bits.CNBIE = 1; //Enable CNBI interrupt
+    IEC3bits.CNAIE = 1; //Enable CNAI interrupt
 }
 
-/* Interrupt service function for the CNBI interrupt. */
+/* Interrupt service function for the CNAI interrupt. */
 /* cppcheck-suppress misra-c2012-8.4
 *
 * (Rule 8.4) REQUIRED: A compatible declaration shall be visible when an object or 
@@ -183,19 +183,19 @@ void XPRO1_INT_SetInterruptHandler(void (* InterruptHandler)(void))
 * Reasoning: Interrupt declaration are provided by compiler and are available
 * outside the driver folder
 */
-void __attribute__ (( interrupt, no_auto_psv )) _CNBInterrupt (void)
+void __attribute__ (( interrupt, no_auto_psv )) _CNAInterrupt (void)
 {
-    if(CNFBbits.CNFB3 == 1)
+    if(CNFAbits.CNFA8 == 1)
     {
         if(XPRO1_INT_InterruptHandler != NULL) 
         { 
             XPRO1_INT_InterruptHandler(); 
         }
         
-        CNFBbits.CNFB3 = 0;  //Clear flag for Pin - XPRO1_INT
+        CNFAbits.CNFA8 = 0;  //Clear flag for Pin - XPRO1_INT
     }
     
     // Clear the flag
-    IFS3bits.CNBIF = 0;
+    IFS3bits.CNAIF = 0;
 }
 

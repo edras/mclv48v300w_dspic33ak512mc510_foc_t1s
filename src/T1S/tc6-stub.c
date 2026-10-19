@@ -59,6 +59,7 @@ Microchip or any third party.
 #define FIRST_TC6_INSTANCE      (0)
 #define SECOND_TC6_INSTANCE     (1)
 #define SPI_OFFSET              (0)
+#define I2C_TIMEOUT_MS          (50u)
 #define PRINT(...)              (void)printf(__VA_ARGS__)
 #define ASSERT(x)               __conditional_software_breakpoint(x)
 
@@ -222,16 +223,26 @@ static bool GetMacAddress(Stub_Local_t *ps)
         if (true == success)
         {
             // Wait for the device to complete the transaction.
+            // Bounded, so a stuck bus (e.g. SCL/SDA held low) cannot block startup.
             bool i2cBusy;
+            uint32_t start = T1S_GetTickCountMs();
 
             do
             {
                 i2cBusy = T1S_I2C_IsBusy();
-            } while (true == i2cBusy);
+            } while ((true == i2cBusy) && ((T1S_GetTickCountMs() - start) < I2C_TIMEOUT_MS));
 
-            enum I2C_HOST_ERROR err = T1S_I2C_ErrorGet();
+            if (true == i2cBusy)
+            {
+                PRINT("MAC EEPROM: I2C timeout, using fallback MAC\r\n");
+                success = false;
+            }
+            else
+            {
+                enum I2C_HOST_ERROR err = T1S_I2C_ErrorGet();
 
-            success = (err == I2C_HOST_ERROR_NONE);
+                success = (err == I2C_HOST_ERROR_NONE);
+            }
         }
     }
 

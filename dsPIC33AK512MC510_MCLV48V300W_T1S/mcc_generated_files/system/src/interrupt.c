@@ -52,13 +52,13 @@ void INTERRUPT_Initialize(void)
     // Priority: 1
     IPC9bits.DMA0IP = 1;
     
-    // I2C3: I2C 3 General interrupt
+    // I2C1: I2C 1 General interrupt
     // Priority: 1
-    IPC11bits.I2C3IP = 1;
+    IPC10bits.I2C1IP = 1;
     
-    // CNB: Change notice B interrupt
+    // CNA: Change notice A interrupt
     // Priority: 1
-    IPC15bits.CNBIP = 1;
+    IPC15bits.CNAIP = 1;
     
     // T1: Timer 1 interrupt
     // Priority: 1
@@ -88,8 +88,8 @@ void INTERRUPT_Deinitialize(void)
     IPC22bits.AD2CH2IP = 4;
     IPC9bits.DMA1IP = 4;
     IPC9bits.DMA0IP = 4;
-    IPC11bits.I2C3IP = 4;
-    IPC15bits.CNBIP = 4;
+    IPC10bits.I2C1IP = 4;
+    IPC15bits.CNAIP = 4;
     IPC6bits.T1IP = 4;
     IPC12bits.U1EVTIP = 4;
     IPC12bits.U1EIP = 4;

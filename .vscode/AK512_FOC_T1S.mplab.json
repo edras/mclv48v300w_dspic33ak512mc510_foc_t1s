@@ -64,12 +64,12 @@
             "files": [
                 {
                     "include": "**/*",
-                    "exclude": "**/@(build|_build|out|cmake|.vscode)/**/*"
+                    "exclude": "**/@(build|_build|out|cmake|.vscode|pyX2Cscope)/**/*"
                 },
                 "dsPIC33AK512MC510_MCLV48V300W_T1S/mcc_generated_files/opa/src/opa3.c",
                 "dsPIC33AK512MC510_MCLV48V300W_T1S/mcc_generated_files/opa/src/opa2.c",
                 "dsPIC33AK512MC510_MCLV48V300W_T1S/mcc_generated_files/opa/src/opa1.c",
-                "dsPIC33AK512MC510_MCLV48V300W_T1S/mcc_generated_files/i2c_host/src/i2c3.c",
+                "dsPIC33AK512MC510_MCLV48V300W_T1S/mcc_generated_files/i2c_host/src/i2c1.c",
                 "dsPIC33AK512MC510_MCLV48V300W_T1S/mcc_generated_files/spi_host/src/spi1.c",
                 "dsPIC33AK512MC510_MCLV48V300W_T1S/mcc_generated_files/pwm_hs/src/pwm.c",
                 "dsPIC33AK512MC510_MCLV48V300W_T1S/mcc_generated_files/adc/src/adc1.c",

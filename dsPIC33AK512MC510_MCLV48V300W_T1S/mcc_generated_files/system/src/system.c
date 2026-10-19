@@ -39,7 +39,7 @@
 #include "../../cmp/cmp3.h"
 #include "../../dma/dma.h"
 #include "../dmt.h"
-#include "../../i2c_host/i2c3.h"
+#include "../../i2c_host/i2c1.h"
 #include "../../opa/opa1.h"
 #include "../../opa/opa2.h"
 #include "../../opa/opa3.h"
@@ -61,7 +61,7 @@ void SYSTEM_Initialize(void)
     CMP3_Initialize();
     DMA_Initialize();
     DMT_Initialize();
-    I2C3_Initialize();
+    I2C1_Initialize();
     OPA1_Initialize();
     OPA2_Initialize();
     OPA3_Initialize();

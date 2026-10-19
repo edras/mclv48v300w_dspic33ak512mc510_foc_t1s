@@ -1,11 +1,11 @@
 /**
- * I2C3 Generated Driver Source File
+ * I2C1 Generated Driver Source File
  * 
- * @file      i2c3.c
+ * @file      i2c1.c
  * 
  * @ingroup   i2chostdriver
  * 
- * @brief     This is the generated driver source file for I2C3 driver
+ * @brief     This is the generated driver source file for I2C1 driver
  *
  * @skipline @version   Firmware Driver Version 1.1.4
  *
@@ -36,7 +36,7 @@
 */
 
 #include <xc.h>
-#include "../i2c3.h"
+#include "../i2c1.h"
 
 /**
  @ingroup  i2chostdriver
@@ -97,87 +97,87 @@ struct I2C_OBJECT
 #define I2C_FREQ_1MHZ    (1000000UL)  // 1Mhz
 
 // I2C Bus Macro's
-#define I2C_EnableModule()  (I2C3CON1bits.ON = 1)
-#define I2C_DisableModule() (I2C3CON1bits.ON = 0)
-#define I2C_Start()         (I2C3CON1bits.SEN = 1)
-#define I2C_Stop()          (I2C3CON1bits.PEN = 1)
-#define I2C_ReStart()       (I2C3CON1bits.RSEN = 1)
-#define I2C_ReceiveEnable() (I2C3CON1bits.RCEN = 1)
+#define I2C_EnableModule()  (I2C1CON1bits.ON = 1)
+#define I2C_DisableModule() (I2C1CON1bits.ON = 0)
+#define I2C_Start()         (I2C1CON1bits.SEN = 1)
+#define I2C_Stop()          (I2C1CON1bits.PEN = 1)
+#define I2C_ReStart()       (I2C1CON1bits.RSEN = 1)
+#define I2C_ReceiveEnable() (I2C1CON1bits.RCEN = 1)
 
 // Section: Driver Interface
-const struct I2C_HOST_INTERFACE I2C3_Host = {
-    .Initialize = I2C3_Initialize,
-    .Deinitialize = I2C3_Deinitialize,
-    .Write = I2C3_Write,
-    .Read = I2C3_Read,
-    .WriteRead = I2C3_WriteRead,
-    .TransferSetup = I2C3_TransferSetup,
-    .ErrorGet = I2C3_ErrorGet,
-    .IsBusy = I2C3_IsBusy,
-    .HostCallbackRegister = &I2C3_CallbackRegister,
+const struct I2C_HOST_INTERFACE I2C1_Host = {
+    .Initialize = I2C1_Initialize,
+    .Deinitialize = I2C1_Deinitialize,
+    .Write = I2C1_Write,
+    .Read = I2C1_Read,
+    .WriteRead = I2C1_WriteRead,
+    .TransferSetup = I2C1_TransferSetup,
+    .ErrorGet = I2C1_ErrorGet,
+    .IsBusy = I2C1_IsBusy,
+    .HostCallbackRegister = &I2C1_CallbackRegister,
     .Tasks = NULL
 };
 
 // Section: Private Variable Definitions
 static volatile struct I2C_OBJECT i2cObj;
 
-static void (*I2C3_HostHandler)(void) = NULL;
+static void (*I2C1_HostHandler)(void) = NULL;
 
 // Section: File specific functions
-static void I2C3_AddressConfiguration(uint16_t address, bool writeMode);
-static inline void I2C3_WriteCollisionStatusClear(void);
-static inline void I2C3_RecevieOverFlowStatusClear(void);
-static inline void I2C3_BusCollisionStatusClear(void);
-static inline void I2C3_HostDataProcess(void);
-static inline void I2C3_CommonInterruptEnable(void);
+static void I2C1_AddressConfiguration(uint16_t address, bool writeMode);
+static inline void I2C1_WriteCollisionStatusClear(void);
+static inline void I2C1_RecevieOverFlowStatusClear(void);
+static inline void I2C1_BusCollisionStatusClear(void);
+static inline void I2C1_HostDataProcess(void);
+static inline void I2C1_CommonInterruptEnable(void);
 
 // Section: Driver Interface Function Definitions
-void I2C3_Initialize(void)
+void I2C1_Initialize(void)
 {
     // initialize the hardware
     // SEN disabled; RSEN disabled; PEN disabled; RCEN disabled; ACKEN disabled; ACKDT Sends ACK; STREN disabled; GCEN disabled; DISSLW enabled; A10M 7 Bit; STRICT disabled; SCLREL Releases; SIDL Continues; ON enabled; DHEN disabled; AHEN disabled; SBCDE disabled; SDAHT 100 ns; BOEN disabled; SCIE disabled; PCIE disabled; SMBEN I2C input threshold voltage; 
-    I2C3CON1 = 0x9000UL;
+    I2C1CON1 = 0x9000UL;
     // S disabled; P disabled; I2COV disabled; IWCOL disabled; BCL disabled; 
-    I2C3STAT1 = 0x0UL;
+    I2C1STAT1 = 0x0UL;
     // I2CADD 0x0; 
-    I2C3ADD = 0x0UL;
+    I2C1ADD = 0x0UL;
     // I2CMSK 0x0; 
-    I2C3MSK = 0x0UL;
+    I2C1MSK = 0x0UL;
     // RXIE disabled; HACKSIE enabled; CLTIE disabled; HSTIE enabled; BCLIE disabled; CRCIE disabled; NACKIE disabled; FRMEIE disabled; BITIE disabled; CBCTIE disabled; HBCTIE disabled; BSCLTIE disabled; EOPIE disabled; HBCLIE enabled; HSCIE enabled; HPCIE enabled; HDRXIE enabled; HDTXIE enabled; CDTXIE disabled; CDRXIE disabled; TXIE disabled; CADDRIE disabled; HSBCLIE disabled; CBCLIE disabled; I2CEIE disabled; 
-    I2C3INTC = 0x1C002803UL;
+    I2C1INTC = 0x1C002803UL;
     // I2CHBRG 102; 
-    I2C3HBRG = 0x66UL;
+    I2C1HBRG = 0x66UL;
     // I2CLBRG 102; 
-    I2C3LBRG = 0x66UL;
+    I2C1LBRG = 0x66UL;
     
-    // I2C3 Host Callback initialize
-    I2C3_CallbackRegister(&I2C3_Callback);
+    // I2C1 Host Callback initialize
+    I2C1_CallbackRegister(&I2C1_Callback);
     
     i2cObj.state = I2C_HOST_IDLE;
     i2cObj.error = I2C_HOST_ERROR_NONE; 
     
-    // I2C3 Interrupt initialize
-    I2C3_CommonInterruptEnable(); 
+    // I2C1 Interrupt initialize
+    I2C1_CommonInterruptEnable(); 
 }
 
-void I2C3_Deinitialize(void)
+void I2C1_Deinitialize(void)
 {
     I2C_DisableModule();
     
     // clear the Host interrupt
-    IFS2bits.I2C3IF = 0;
-    IEC2bits.I2C3IE = 0;
+    IFS2bits.I2C1IF = 0;
+    IEC2bits.I2C1IE = 0;
     
-    I2C3CON1 = 0x1000UL;
-    I2C3STAT1 = 0x0UL;
-    I2C3ADD = 0x0UL;
-    I2C3MSK = 0x0UL;
-    I2C3INTC = 0x0UL;
-    I2C3HBRG = 0x0UL;
-    I2C3LBRG = 0x0UL;
+    I2C1CON1 = 0x1000UL;
+    I2C1STAT1 = 0x0UL;
+    I2C1ADD = 0x0UL;
+    I2C1MSK = 0x0UL;
+    I2C1INTC = 0x0UL;
+    I2C1HBRG = 0x0UL;
+    I2C1LBRG = 0x0UL;
 }
 
-bool I2C3_Write(uint16_t address, uint8_t *data, size_t dataLength)
+bool I2C1_Write(uint16_t address, uint8_t *data, size_t dataLength)
 {
     bool status = true;
 
@@ -189,16 +189,16 @@ bool I2C3_Write(uint16_t address, uint8_t *data, size_t dataLength)
     if((i2cObj.state == I2C_HOST_IDLE) && ((data != NULL) && (dataLength > (size_t)0)) 
             && (address <= (size_t)I2C_10_BIT_ADDRESS_SIZE))
     {
-        I2C3_AddressConfiguration(address, true);
+        I2C1_AddressConfiguration(address, true);
         i2cObj.writeData = data;
         i2cObj.writeDataCount = dataLength;    
         i2cObj.readData = NULL;
         i2cObj.readDataCount = 0;  
-        I2C3_WriteCollisionStatusClear();
-        I2C3_BusCollisionStatusClear();
+        I2C1_WriteCollisionStatusClear();
+        I2C1_BusCollisionStatusClear();
 
         // Enable Host interrupt to start the transmit sequence
-        IFS2bits.I2C3IF = 1;  
+        IFS2bits.I2C1IF = 1;  
     }
     else
     {
@@ -208,7 +208,7 @@ bool I2C3_Write(uint16_t address, uint8_t *data, size_t dataLength)
     return status;
 }
 
-bool I2C3_Read(uint16_t address, uint8_t *data, size_t dataLength)
+bool I2C1_Read(uint16_t address, uint8_t *data, size_t dataLength)
 {
     bool status = true;
 
@@ -220,17 +220,17 @@ bool I2C3_Read(uint16_t address, uint8_t *data, size_t dataLength)
     if((i2cObj.state == I2C_HOST_IDLE) && ((data != NULL) && (dataLength > (size_t)0)) 
             && (address <= (size_t)I2C_10_BIT_ADDRESS_SIZE))
     {
-        I2C3_AddressConfiguration(address, false);
+        I2C1_AddressConfiguration(address, false);
         i2cObj.readData = data;
         i2cObj.readDataCount = dataLength; 
         i2cObj.writeData = NULL;
         i2cObj.writeDataCount = 0;  
-        I2C3_WriteCollisionStatusClear();
-        I2C3_RecevieOverFlowStatusClear();
-        I2C3_BusCollisionStatusClear();
+        I2C1_WriteCollisionStatusClear();
+        I2C1_RecevieOverFlowStatusClear();
+        I2C1_BusCollisionStatusClear();
         
         // Enable Host interrupt to start the transmit sequence
-        IFS2bits.I2C3IF = 1;               
+        IFS2bits.I2C1IF = 1;               
     }
     else
     {
@@ -240,7 +240,7 @@ bool I2C3_Read(uint16_t address, uint8_t *data, size_t dataLength)
     return status;
 }
 
-bool I2C3_WriteRead(uint16_t address, uint8_t *writeData, size_t writeLength, uint8_t *readData, size_t readLength)
+bool I2C1_WriteRead(uint16_t address, uint8_t *writeData, size_t writeLength, uint8_t *readData, size_t readLength)
 {
     bool status = true;
 
@@ -253,15 +253,15 @@ bool I2C3_WriteRead(uint16_t address, uint8_t *writeData, size_t writeLength, ui
             && ((readData != NULL) && (readLength > (size_t)0))
             && (address <= (size_t)I2C_10_BIT_ADDRESS_SIZE))
     {
-        I2C3_AddressConfiguration(address, true);
+        I2C1_AddressConfiguration(address, true);
         i2cObj.writeData = writeData;
         i2cObj.writeDataCount = writeLength;  
         i2cObj.readData = readData;
         i2cObj.readDataCount = readLength; 
-        I2C3_WriteCollisionStatusClear();
+        I2C1_WriteCollisionStatusClear();
 
         // Enable Host interrupt to start Transmit sequence
-        IFS2bits.I2C3IF = 1;   
+        IFS2bits.I2C1IF = 1;   
     }
     else
     {
@@ -271,11 +271,11 @@ bool I2C3_WriteRead(uint16_t address, uint8_t *writeData, size_t writeLength, ui
     return status;
 }
 
-bool I2C3_TransferSetup(struct I2C_TRANSFER_SETUP *setup, uint32_t srcClkFreq)
+bool I2C1_TransferSetup(struct I2C_TRANSFER_SETUP *setup, uint32_t srcClkFreq)
 {
     bool status = false;
     
-    uint32_t peripheralClkSpeed = srcClkFreq ? srcClkFreq : (uint32_t)I2C3_CLOCK_FREQUENCY;
+    uint32_t peripheralClkSpeed = srcClkFreq ? srcClkFreq : (uint32_t)I2C1_CLOCK_FREQUENCY;
     
     if((((uint32_t)I2C_FREQ_100KHZ <= setup->clkSpeed) && (setup->clkSpeed <= (uint32_t)I2C_FREQ_1MHZ)) 
             && (setup != NULL))
@@ -295,17 +295,17 @@ bool I2C3_TransferSetup(struct I2C_TRANSFER_SETUP *setup, uint32_t srcClkFreq)
         if((brgVal >= (uint16_t)4) && (brgVal <= (uint16_t)16777215))
         {
             I2C_DisableModule();
-            I2C3LBRG = brgVal;
-            I2C3HBRG = brgVal;
+            I2C1LBRG = brgVal;
+            I2C1HBRG = brgVal;
             
             // Enable slew rate for 400 KHZ clock speed; disable for all other speeds
             if (setup->clkSpeed == (uint32_t)I2C_FREQ_400KHZ)
             {
-                I2C3CON1bits.DISSLW = 1;
+                I2C1CON1bits.DISSLW = 1;
             }
             else
             {
-                I2C3CON1bits.DISSLW = 0;
+                I2C1CON1bits.DISSLW = 0;
             }
 
             I2C_EnableModule();
@@ -316,7 +316,7 @@ bool I2C3_TransferSetup(struct I2C_TRANSFER_SETUP *setup, uint32_t srcClkFreq)
     return status;
 }
 
-enum I2C_HOST_ERROR I2C3_ErrorGet(void)
+enum I2C_HOST_ERROR I2C1_ErrorGet(void)
 {
     enum I2C_HOST_ERROR error;
 
@@ -326,16 +326,16 @@ enum I2C_HOST_ERROR I2C3_ErrorGet(void)
     return error;
 }
 
-bool I2C3_IsBusy(void)
+bool I2C1_IsBusy(void)
 {
     bool status = false;
     
-    if((I2C3CON1 & I2C_MASK_ALL_ENABLE) != 0)
+    if((I2C1CON1 & I2C_MASK_ALL_ENABLE) != 0)
     {
         status = true;
     }  
     else if((i2cObj.state != I2C_HOST_IDLE) ||
-            (I2C3STAT1bits.S == true) || (I2C3STAT1bits.TRSTAT == true))
+            (I2C1STAT1bits.S == true) || (I2C1STAT1bits.TRSTAT == true))
     {
         status = true;
     }
@@ -346,15 +346,15 @@ bool I2C3_IsBusy(void)
     return status;
 }
 
-void I2C3_CallbackRegister(void (*callback)(void))
+void I2C1_CallbackRegister(void (*callback)(void))
 {
     if(NULL != callback)
     {
-        I2C3_HostHandler = callback;
+        I2C1_HostHandler = callback;
     }
 }
 
-void __attribute__ ((weak)) I2C3_Callback(void)
+void __attribute__ ((weak)) I2C1_Callback(void)
 { 
 
 } 
@@ -367,11 +367,11 @@ void __attribute__ ((weak)) I2C3_Callback(void)
 * Reasoning: Interrupt declaration are provided by compiler and are available
 * outside the driver folder
 */
-void __attribute__ ((interrupt, no_auto_psv)) _I2C3Interrupt(void)
+void __attribute__ ((interrupt, no_auto_psv)) _I2C1Interrupt(void)
 {
     // Interrupt flag should be clear before the start bit sequence
-    IFS2bits.I2C3IF = 0;
-    if(I2C3STAT1bits.BCL == 1)
+    IFS2bits.I2C1IF = 0;
+    if(I2C1STAT1bits.BCL == 1)
     {
         // If we have a Write Collision, reset the buffer and go to the idle state
         i2cObj.writeData = NULL; 
@@ -380,17 +380,17 @@ void __attribute__ ((interrupt, no_auto_psv)) _I2C3Interrupt(void)
         i2cObj.readDataCount = 0;
         i2cObj.state = I2C_HOST_IDLE;
         i2cObj.error = I2C_HOST_ERROR_BUS_COLLISION;
-        I2C3STAT1bits.BCL = 0;
+        I2C1STAT1bits.BCL = 0;
         
-        if(I2C3_HostHandler != NULL)
+        if(I2C1_HostHandler != NULL)
         {
-            I2C3_HostHandler();
+            I2C1_HostHandler();
         }
     } 
-    else if(I2C3STAT1bits.IWCOL == 1)
+    else if(I2C1STAT1bits.IWCOL == 1)
     {
         // If we have a Write Collision, reset the buffer and go to the idle state
-        I2C3STAT1bits.IWCOL = 0;
+        I2C1STAT1bits.IWCOL = 0;
         i2cObj.writeData = NULL; 
         i2cObj.readData = NULL; 
         i2cObj.writeDataCount = 0;
@@ -400,7 +400,7 @@ void __attribute__ ((interrupt, no_auto_psv)) _I2C3Interrupt(void)
     else
     {
         // I2C Host Write/Read data process operation
-        I2C3_HostDataProcess();
+        I2C1_HostDataProcess();
     }
 }
 
@@ -410,7 +410,7 @@ void __attribute__ ((interrupt, no_auto_psv)) _I2C3Interrupt(void)
  @brief    Reads the I2C Client address from input and update 
            to the I2C object address (7bit or 10bit). 
 */
-static void I2C3_AddressConfiguration(uint16_t address, bool writeMode)
+static void I2C1_AddressConfiguration(uint16_t address, bool writeMode)
 {
 
     uint8_t writeModeStatus = writeMode ? I2C_WRITE_MODE : I2C_READ_MODE;
@@ -442,11 +442,11 @@ static void I2C3_AddressConfiguration(uint16_t address, bool writeMode)
  @static   I2C Bus write collision clear
  @brief    Clears the I2C Bus write collision
 */
-static inline void I2C3_WriteCollisionStatusClear(void)
+static inline void I2C1_WriteCollisionStatusClear(void)
 {
-    if(true == I2C3STAT1bits.IWCOL) 
+    if(true == I2C1STAT1bits.IWCOL) 
     {
-        I2C3STAT1bits.IWCOL = 0;
+        I2C1STAT1bits.IWCOL = 0;
     }
 }
 
@@ -455,11 +455,11 @@ static inline void I2C3_WriteCollisionStatusClear(void)
  @static   I2C Bus receive overflow clear
  @brief    Clears the I2C Bus receive overflow
 */
-static inline void I2C3_RecevieOverFlowStatusClear(void)
+static inline void I2C1_RecevieOverFlowStatusClear(void)
 {
-    if(true == I2C3STAT1bits.I2COV)
+    if(true == I2C1STAT1bits.I2COV)
     {
-        I2C3STAT1bits.I2COV = 0;
+        I2C1STAT1bits.I2COV = 0;
     }
 }
 
@@ -468,11 +468,11 @@ static inline void I2C3_RecevieOverFlowStatusClear(void)
  @static   I2C Bus Bus collision clear
  @brief    Clears the I2C Bus collision.
 */
-static inline void I2C3_BusCollisionStatusClear(void)
+static inline void I2C1_BusCollisionStatusClear(void)
 {
-    if(true == I2C3STAT1bits.BCL)
+    if(true == I2C1STAT1bits.BCL)
     {
-        I2C3STAT1bits.BCL = 0;
+        I2C1STAT1bits.BCL = 0;
     }
 }
 
@@ -481,7 +481,7 @@ static inline void I2C3_BusCollisionStatusClear(void)
  @static   I2C ISR state machine
  @brief    This function is I2C ISR state machine
 */
-static inline void I2C3_HostDataProcess(void)
+static inline void I2C1_HostDataProcess(void)
 {
     switch(i2cObj.state)
     {
@@ -505,9 +505,9 @@ static inline void I2C3_HostDataProcess(void)
             
         case I2C_HOST_SEND_10BIT_HIGHER_ADDRESS:
             // Transmit the 10 bit Higher address <A9:A8> | <0>(W/R)
-            if(false == I2C3STAT1bits.TBF)
+            if(false == I2C1STAT1bits.TBF)
             {
-                I2C3TRN = i2cObj.clientAddressHigh;
+                I2C1TRN = i2cObj.clientAddressHigh;
                 if(true == i2cObj.isWriteMode)
                 {
                     i2cObj.state = I2C_HOST_SEND_10BIT_LOWER_ADDRESS;
@@ -520,10 +520,10 @@ static inline void I2C3_HostDataProcess(void)
             break;
             
         case I2C_HOST_SEND_10BIT_LOWER_ADDRESS:
-            if(false == I2C3STAT1bits.ACKSTAT)
+            if(false == I2C1STAT1bits.ACKSTAT)
             {               
                 // Transmit the 10 bit Lower address <A7:A0>
-                I2C3TRN = i2cObj.clientAddressLow;
+                I2C1TRN = i2cObj.clientAddressLow;
                 
                 // Check read or write mode
                 if(false == i2cObj.isWriteMode)
@@ -550,7 +550,7 @@ static inline void I2C3_HostDataProcess(void)
 
         case I2C_HOST_SEND_7BIT_ADDRESS:
             // Transmit the 7 bit address <A7:A1> | <0>(W/R)
-            I2C3TRN = i2cObj.clientAddressLow;
+            I2C1TRN = i2cObj.clientAddressLow;
 
             // Check read or write mode
             if(false == i2cObj.isWriteMode)
@@ -567,16 +567,16 @@ static inline void I2C3_HostDataProcess(void)
             
         case I2C_HOST_SEND_DATA_TO_CLIENT:
             // Check previous byte is ACK
-            if(false == I2C3STAT1bits.ACKSTAT)
+            if(false == I2C1STAT1bits.ACKSTAT)
             {
                 if(i2cObj.writeDataCount > (size_t)0) 
                 {
-                    if(false == I2C3STAT1bits.TBF)
+                    if(false == I2C1STAT1bits.TBF)
                     {
                         // Transmit data to client
                         if(NULL != i2cObj.writeData)
                         {
-                            I2C3TRN = *(i2cObj.writeData);
+                            I2C1TRN = *(i2cObj.writeData);
                             i2cObj.writeData++;                        
                         }
                         
@@ -625,7 +625,7 @@ static inline void I2C3_HostDataProcess(void)
             break;
         
         case I2C_HOST_CHECK_ADDRESS_ACK_NACK_STATUS:
-            if(false == I2C3STAT1bits.ACKSTAT)
+            if(false == I2C1STAT1bits.ACKSTAT)
             {
                // I2C Receive mode Enable 
                I2C_ReceiveEnable(); 
@@ -643,12 +643,12 @@ static inline void I2C3_HostDataProcess(void)
             break;
             
         case I2C_HOST_RECEIVE_DATA_FROM_CLIENT:
-            if(true == I2C3STAT1bits.RBF)
+            if(true == I2C1STAT1bits.RBF)
             {
                 // Receive data from client
                 if(NULL != i2cObj.readData)
                 {                
-                    *(i2cObj.readData) = I2C3RCV;
+                    *(i2cObj.readData) = I2C1RCV;
                     i2cObj.readData++;
                 }
                 
@@ -657,9 +657,9 @@ static inline void I2C3_HostDataProcess(void)
                 if(i2cObj.readDataCount > (size_t)0)
                 {
                     // Set the flag to acknowledge the data
-                    I2C3CON1bits.ACKDT  = 0;
+                    I2C1CON1bits.ACKDT  = 0;
                     // Initiate the acknowledge
-                    I2C3CON1bits.ACKEN = 1;
+                    I2C1CON1bits.ACKEN = 1;
                     i2cObj.state = I2C_HOST_RECEIVE_WAIT_ACK_NACK_COMPLETE;                
                 }
                 else
@@ -670,9 +670,9 @@ static inline void I2C3_HostDataProcess(void)
 
 
                     // Set the flag to acknowledge the data
-                    I2C3CON1bits.ACKDT  = 1;
+                    I2C1CON1bits.ACKDT  = 1;
                     // Initiate the acknowledge
-                    I2C3CON1bits.ACKEN = 1;
+                    I2C1CON1bits.ACKEN = 1;
                     i2cObj.state = I2C_HOST_STOP;                    
                 }
             }          
@@ -685,14 +685,14 @@ static inline void I2C3_HostDataProcess(void)
             break;
 
         case I2C_HOST_STOP:
-            if((uint16_t)0 == I2C3STAT1bits.P)
+            if((uint16_t)0 == I2C1STAT1bits.P)
             {
                 I2C_Stop();
             }
             
-            if(I2C3_HostHandler != NULL)
+            if(I2C1_HostHandler != NULL)
             {
-                I2C3_HostHandler();
+                I2C1_HostHandler();
             }
             
             i2cObj.state = I2C_HOST_IDLE; 
@@ -708,11 +708,11 @@ static inline void I2C3_HostDataProcess(void)
  @static   Enable the I2C Bus Interrupts
  @brief    Enable the I2C Bus Interrupts
 */
-static inline void I2C3_CommonInterruptEnable(void)
+static inline void I2C1_CommonInterruptEnable(void)
 {
-    // I2C3 Host Event 
+    // I2C1 Host Event 
     // clear the Host interrupt flag
-    IFS2bits.I2C3IF = 0;
+    IFS2bits.I2C1IF = 0;
     // enable the Host interrupt
-    IEC2bits.I2C3IE = 1;
+    IEC2bits.I2C1IE = 1;
 }

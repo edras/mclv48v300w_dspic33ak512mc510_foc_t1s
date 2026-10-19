@@ -1,11 +1,11 @@
 /**
- * I2C3 Generated Driver Header File
+ * I2C1 Generated Driver Header File
  * 
- * @file      i2c3.h
+ * @file      i2c1.h
  * 
  * @ingroup   i2chostdriver
  * 
- * @brief     This is the generated driver header file for the I2C3 driver
+ * @brief     This is the generated driver header file for the I2C1 driver
  *
  * @skipline @version   Firmware Driver Version 1.1.4
  *
@@ -35,8 +35,8 @@
     THIS SOFTWARE.
 */
 
-#ifndef I2C3_H
-#define I2C3_H
+#ifndef I2C1_H
+#define I2C1_H
 
 #include <stdint.h>
 #include <stdbool.h>
@@ -54,70 +54,70 @@
  *           This allows defining a structure with application specific name using 
  *           the 'Custom Name' field. Application specific name allows the API Portability.
 */
-extern const struct I2C_HOST_INTERFACE I2C3_Host;
+extern const struct I2C_HOST_INTERFACE I2C1_Host;
 
 /**
  * @ingroup  i2chostdriver  
- * @brief    This macro defines source clock frequency of I2C3
+ * @brief    This macro defines source clock frequency of I2C1
  */
-#define I2C3_CLOCK_FREQUENCY                     100000000UL
+#define I2C1_CLOCK_FREQUENCY                     100000000UL
 
 /**
  * @ingroup  i2chostdriver  
- * @brief    This macro defines the Custom Name for \ref I2C3_Initialize API
+ * @brief    This macro defines the Custom Name for \ref I2C1_Initialize API
  */
-#define I2C3_Host_Initialize I2C3_Initialize
+#define I2C1_Host_Initialize I2C1_Initialize
 /**
  * @ingroup  i2chostdriver  
- * @brief    This macro defines the Custom Name for \ref I2C3_Deinitialize API
+ * @brief    This macro defines the Custom Name for \ref I2C1_Deinitialize API
  */
-#define I2C3_Host_Deinitialize I2C3_Deinitialize
+#define I2C1_Host_Deinitialize I2C1_Deinitialize
 /**
  * @ingroup  i2chostdriver  
- * @brief    This macro defines the Custom Name for \ref I2C3_Write API
+ * @brief    This macro defines the Custom Name for \ref I2C1_Write API
  */
-#define I2C3_Host_Write I2C3_Write
+#define I2C1_Host_Write I2C1_Write
 /**
  * @ingroup  i2chostdriver  
- * @brief    This macro defines the Custom Name for \ref I2C3_Read API
+ * @brief    This macro defines the Custom Name for \ref I2C1_Read API
  */
-#define I2C3_Host_Read I2C3_Read
+#define I2C1_Host_Read I2C1_Read
 /**
  * @ingroup  i2chostdriver  
- * @brief    This macro defines the Custom Name for \ref I2C3_WriteRead API
+ * @brief    This macro defines the Custom Name for \ref I2C1_WriteRead API
  */
-#define I2C3_Host_WriteRead I2C3_WriteRead
+#define I2C1_Host_WriteRead I2C1_WriteRead
 /**
  * @ingroup  i2chostdriver  
- * @brief    This macro defines the Custom Name for \ref I2C3_TransferSetup API
+ * @brief    This macro defines the Custom Name for \ref I2C1_TransferSetup API
  */
-#define I2C3_Host_TransferSetup I2C3_TransferSetup
+#define I2C1_Host_TransferSetup I2C1_TransferSetup
 /**
  * @ingroup  i2chostdriver  
- * @brief    This macro defines the Custom Name for \ref I2C3_ErrorGet API
+ * @brief    This macro defines the Custom Name for \ref I2C1_ErrorGet API
  */
-#define I2C3_Host_ErrorGet I2C3_ErrorGet
+#define I2C1_Host_ErrorGet I2C1_ErrorGet
 /**
  * @ingroup  i2chostdriver  
- * @brief    This macro defines the Custom Name for \ref I2C3_CallbackRegister API
+ * @brief    This macro defines the Custom Name for \ref I2C1_CallbackRegister API
  */
-#define I2C3_Host_CallbackRegister I2C3_CallbackRegister
-
-/**
- * @ingroup  i2chostdriver
- * @brief    Initializes the I2C3 module
- * @param    none
- * @return   none
- */
-void I2C3_Initialize(void);
+#define I2C1_Host_CallbackRegister I2C1_CallbackRegister
 
 /**
  * @ingroup  i2chostdriver
- * @brief    Deinitializes the I2C3 to POR values
+ * @brief    Initializes the I2C1 module
  * @param    none
  * @return   none
  */
-void I2C3_Deinitialize(void);
+void I2C1_Initialize(void);
+
+/**
+ * @ingroup  i2chostdriver
+ * @brief    Deinitializes the I2C1 to POR values
+ * @param    none
+ * @return   none
+ */
+void I2C1_Deinitialize(void);
 
 /**
  * @ingroup    i2chostdriver
@@ -126,7 +126,7 @@ void I2C3_Deinitialize(void);
  *             is specified by address. The I2C Host will generate a Start condition, 
  *             write the data and then generate a Stop Condition. If the Client NACK 
  *             the request or a bus error was encountered on the bus, the transfer is 
- *             terminated. The application can call the I2C3_ErrorGet() function to know 
+ *             terminated. The application can call the I2C1_ErrorGet() function to know 
  *             that cause of the error. 
  *             
  *             The function is non-blocking. It initiates bus activity and returns 
@@ -146,7 +146,7 @@ void I2C3_Deinitialize(void);
  * @return     false - The request fails,if there was already a transfer in progress
  *             when this function was called.
  */
-bool I2C3_Write(uint16_t address, uint8_t *data, size_t dataLength);
+bool I2C1_Write(uint16_t address, uint8_t *data, size_t dataLength);
 
 /**
  * @ingroup     i2chostdriver
@@ -155,7 +155,7 @@ bool I2C3_Write(uint16_t address, uint8_t *data, size_t dataLength);
  *              address is specified as address. The I2C Host generate a Start condition, 
  *              read the data and then generate a Stop Condition. If the Client NAKs 
  *              the request or a bus error is encountered on the bus, the transfer is 
- *              terminated. The application can call I2C3_ErrorGet() function to know 
+ *              terminated. The application can call I2C1_ErrorGet() function to know 
  *              that cause of the error. 
  *              
  *              The function is non-blocking. It initiates bus activity and returns 
@@ -176,7 +176,7 @@ bool I2C3_Write(uint16_t address, uint8_t *data, size_t dataLength);
  * @return      false - The request fails,if there was already a transfer in progress
  *              when this function was called.
  */
-bool I2C3_Read(uint16_t address, uint8_t *data, size_t dataLength);
+bool I2C1_Read(uint16_t address, uint8_t *data, size_t dataLength);
 
 /**
  * @ingroup     i2chostdriver
@@ -190,7 +190,7 @@ bool I2C3_Read(uint16_t address, uint8_t *data, size_t dataLength);
  *              
  *              If the Client NAKs the request or a bus error was encountered on 
  *              the bus, the transfer is terminated. The application can call 
- *              I2C3_ErrorGet() function to know thatcause of the error. 
+ *              I2C1_ErrorGet() function to know thatcause of the error. 
  *              
  *              The function is non-blocking. It initiates bus activity and returns 
  *              immediately. The transfer is then completed in the peripheral interrupt. 
@@ -209,7 +209,7 @@ bool I2C3_Read(uint16_t address, uint8_t *data, size_t dataLength);
  * @return      false - The request fails,if there was already a transfer in progress
  *              when this function was called.
  */
-bool I2C3_WriteRead(uint16_t address, uint8_t *writeData, size_t writeLength, uint8_t *readData, size_t readLength);
+bool I2C1_WriteRead(uint16_t address, uint8_t *writeData, size_t writeLength, uint8_t *readData, size_t readLength);
 
 /**
  * @ingroup    i2chostdriver
@@ -220,7 +220,7 @@ bool I2C3_WriteRead(uint16_t address, uint8_t *writeData, size_t writeLength, ui
  * @return     true  - Transfer setup was updated Successfully
  * @return     false - Failure while updating transfer setup
  */
-bool I2C3_TransferSetup(struct I2C_TRANSFER_SETUP* setup, uint32_t srcClkFreq); 
+bool I2C1_TransferSetup(struct I2C_TRANSFER_SETUP* setup, uint32_t srcClkFreq); 
 
 
 /**
@@ -232,7 +232,7 @@ bool I2C3_TransferSetup(struct I2C_TRANSFER_SETUP* setup, uint32_t srcClkFreq);
  * @return   I2C_HOST_ERROR_NACK          - Client returned NACK
  * @return   I2C_HOST_ERROR_BUS_COLLISION - Bus Collision Error
  */
-enum I2C_HOST_ERROR I2C3_ErrorGet(void);
+enum I2C_HOST_ERROR I2C1_ErrorGet(void);
 
 /**
  * @ingroup  i2chostdriver
@@ -246,30 +246,30 @@ enum I2C_HOST_ERROR I2C3_ErrorGet(void);
  * @return   true    - Busy
  * @return   false   - Not Busy
  */
-bool I2C3_IsBusy(void);
+bool I2C1_IsBusy(void);
 
 /**
  * @ingroup    i2chostdriver
  * @brief      This function can be used to overrides default callback 
- *             \ref I2C3_HostCallback and to define custom callback for 
- *             I2C3 Host event.
+ *             \ref I2C1_HostCallback and to define custom callback for 
+ *             I2C1 Host event.
  * @pre        none
  * @param[in]  address  -  Address of the callback function
  * @return     none
  */
-void I2C3_CallbackRegister(void (*callback)(void));
+void I2C1_CallbackRegister(void (*callback)(void));
 
 
 /**
  * @ingroup  i2chostdriver
  * @brief    This is the default callback with weak attribute. The user can 
  *           override and implement the default callback without weak attribute 
- *           or can register a custom callback function using I2C3_CallbackRegister.
+ *           or can register a custom callback function using I2C1_CallbackRegister.
  * @pre      none
  * @param    none
  * @return   none
  */
-void I2C3_Callback(void);
+void I2C1_Callback(void);
 
 #endif
 

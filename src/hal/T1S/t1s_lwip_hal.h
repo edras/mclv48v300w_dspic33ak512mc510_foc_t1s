@@ -42,7 +42,7 @@
 
 #include "hal.h"
 #include "mcc_generated_files/system/pins.h"
-#include "mcc_generated_files/i2c_host/i2c3.h"
+#include "mcc_generated_files/i2c_host/i2c1.h"
 #include "systick/systick.h"
 #include "dmaspi.h"
 
@@ -75,9 +75,9 @@
 #define T1S_SPI_AVAILABLE    DMA_AVAILABLE
 
 // I2C Definitions
-#define T1S_I2C_WriteRead    I2C3_WriteRead
-#define T1S_I2C_IsBusy       I2C3_IsBusy
-#define T1S_I2C_ErrorGet     I2C3_ErrorGet
+#define T1S_I2C_WriteRead    I2C1_WriteRead
+#define T1S_I2C_IsBusy       I2C1_IsBusy
+#define T1S_I2C_ErrorGet     I2C1_ErrorGet
 
 #define T1S_reset(...)        __asm__ volatile ("reset")
 
