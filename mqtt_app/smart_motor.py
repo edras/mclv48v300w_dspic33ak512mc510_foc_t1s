@@ -39,8 +39,9 @@ COLOR_GRAY = "#546e7a"
 
 SPEED_PRESETS = [400, 900, 1000, 1100, 2000]
 MAX_SPEED_DISPLAY = 3500
-FAILURE_LABELS = ["Normal", "Unbalanced", "Unknown", "Wrong Speed"]
-FAILURE_COLORS = [COLOR_GREEN, COLOR_YELLOW, COLOR_ORANGE, COLOR_RED]
+# Index = ML class published on smart_motor/failure (ML_CLASS_T in src/ml/ml_app.h)
+FAILURE_LABELS = ["Unknown", "Finger Tap", "Normal", "Long Notch", "Short Notch"]
+FAILURE_COLORS = ["#90a4ae", COLOR_YELLOW, COLOR_GREEN, COLOR_RED, COLOR_ORANGE]
 
 
 class SmartMotorApp:
