@@ -15,11 +15,12 @@ Design decisions (from the offline analysis of ml_capture/data):
   clearly worse and a 512-point FFT would cost several KB of RAM.
 - Window 512 samples (256 ms @ 2 kHz, >= 2 revolutions at 500 RPM), delta 244,
   i.e. 3 windows per 1000-sample capture.
-- Validation by adapter (= by recording run). Consecutive captures of one run
-  are almost identical, so a random split reports far too optimistic numbers.
-  Training on one run and validating on the other shows how well the model
-  generalizes to a new contact pressure, which is what the live demo needs.
-- Boosted tree ensemble: small, fast, robust on a few dozen scaled features.
+- Validation by capture (segment_uuid) while only the blue adapter is used:
+  the windows of one capture stay together. This is optimistic, because
+  consecutive captures of one run are almost identical. Once the black adapter
+  is added, validate by adapter (= by recording run) for an honest estimate.
+- Decision tree ensemble trained as random forest: small, fast, robust on a few
+  dozen scaled features. (xGBoost on the server only supports 2 classes.)
 """
 
 import time
@@ -40,6 +41,8 @@ SESSION = "Session_1"
 LABEL_COLUMN = "Label"
 COLUMNS = ["iq", "vq", "rpm"]
 METADATA_COLUMNS = ["speed_rpm", "adapter", "dataset_type"]
+# Only the blue adapter for now; "" uses all captures
+QUERY_FILTER = "[adapter] IN [blue]"
 
 SAMPLE_RATE_HZ = 2000
 WINDOW_SIZE = 512
@@ -61,13 +64,16 @@ FEATURE_GENERATORS = [
 ]
 NUMBER_OF_FEATURES = 16
 
-# "adapter": train on one recording run, validate on the other (honest)
 # "segment_uuid": validate on other captures of the same runs (optimistic)
-VALIDATION_METADATA = "adapter"
-VALIDATION_FOLDS = 2
+# "adapter": train on one recording run, validate on the other (honest,
+#            needs QUERY_FILTER = "" and VALIDATION_FOLDS = 2)
+VALIDATION_METADATA = "segment_uuid"
+VALIDATION_FOLDS = 3
 
-XGB_MAX_DEPTH = 4
-XGB_N_ESTIMATORS = 30
+CLASSIFIER = "Decision Tree Ensemble"
+TRAINING_ALGORITHM = "Random Forest"
+# Applied only if the server's Random Forest accepts these parameter names
+TRAINING_PARAMS = {"max_depth": 6, "n_estimators": 20}
 
 API_KEY_FILE = Path(__file__).resolve().parents[2] / "mplabml_SDK" / "mplabmlapi" / "key.txt"
 CACHE_TIMEOUT_S = 900
@@ -107,7 +113,19 @@ def available_generators(client):
     return names
 
 
-def build_steps(generators):
+def training_params(client):
+    """TRAINING_PARAMS restricted to what the server's training algorithm accepts."""
+    known = function_inputs(client, TRAINING_ALGORITHM)
+    if known is None:
+        raise SystemExit(f"Training algorithm '{TRAINING_ALGORITHM}' is not available on the server")
+    dropped = set(TRAINING_PARAMS) - known
+    if dropped:
+        print(f"  ! '{TRAINING_ALGORITHM}' does not accept {sorted(dropped)}, server defaults used; "
+              f"valid: {sorted(known)}")
+    return {k: v for k, v in TRAINING_PARAMS.items() if k in known}
+
+
+def build_steps(client, generators):
     return {
         "Windowing": {"window_size": WINDOW_SIZE, "delta": WINDOW_DELTA,
                       "enable_train_delta": False, "return_segment_index": False},
@@ -117,8 +135,8 @@ def build_steps(generators):
         "Stratified Metadata k-fold": {"number_of_folds": VALIDATION_FOLDS,
                                        "metadata_name": VALIDATION_METADATA},
         "Recall": {},
-        "Boosted Tree Ensemble": {},
-        "xGBoost": {"max_depth": XGB_MAX_DEPTH, "n_estimators": XGB_N_ESTIMATORS},
+        CLASSIFIER: {},
+        TRAINING_ALGORITHM: training_params(client),
     }
 
 
@@ -134,6 +152,7 @@ def build_query(client):
         name=QUERY,
         columns=COLUMNS,
         metadata_columns=METADATA_COLUMNS,
+        metadata_filter=QUERY_FILTER,
         segmenter=SESSION,
         label_column=LABEL_COLUMN,
         force=True,
@@ -164,8 +183,8 @@ def build_pipeline(client, steps, generators, validation):
     p.add_feature_selector([{"name": "Tree-based Selection", "params": steps["Tree-based Selection"]}])
     p.add_transform("Min Max Scale", params=steps["Min Max Scale"])
     p.set_validation_method(validation, params=steps[validation])
-    p.set_classifier("Boosted Tree Ensemble", params=steps["Boosted Tree Ensemble"])
-    p.set_training_algorithm("xGBoost", params=steps["xGBoost"])
+    p.set_classifier(CLASSIFIER, params=steps[CLASSIFIER])
+    p.set_training_algorithm(TRAINING_ALGORITHM, params=steps[TRAINING_ALGORITHM])
     p.set_tvo({"validation_seed": 42})
     return p
 
@@ -189,16 +208,16 @@ def main():
     print_dataset(client)
 
     generators = available_generators(client)
-    steps = build_steps(generators)
+    steps = build_steps(client, generators)
     for name, params in steps.items():
         check_function(client, name, params)
 
-    build_query(client)
+    #build_query(client)
 
-    # 1) Honest estimate: train on one recording run (adapter), validate on the other
+    # 1) Validation estimate, grouped by VALIDATION_METADATA
     p = build_pipeline(client, steps, generators, "Stratified Metadata k-fold")
     p.describe()
-    print(f"\n=== Cross-run validation (by '{VALIDATION_METADATA}') ===")
+    print(f"\n=== Validation (grouped by '{VALIDATION_METADATA}') ===")
     results, _ = p.execute(silent=False)
     report(results, "validation")
 
@@ -211,8 +230,8 @@ def main():
     print(kp.feature_summary)
     print("\nResource cost:")
     print(kp.cost_resource_summary())
-    kp.save(f"{PIPELINE}_xgb")
-    print(f"\nKnowledge Pack saved as '{PIPELINE}_xgb'")
+    kp.save(f"{PIPELINE}_rf")
+    print(f"\nKnowledge Pack saved as '{PIPELINE}_rf'")
 
 
 if __name__ == "__main__":
