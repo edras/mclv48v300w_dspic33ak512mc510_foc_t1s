@@ -56,7 +56,7 @@ Copyright (c) [2012-2020] Microchip Technology Inc.
 #include "X2Cscope.h"
 
 /* Scope data buffer.
- * Size is controlled by X2CSCOPE_BUFFER_SIZE (default 5000 bytes).
+ * Size is controlled by X2CSCOPE_BUFFER_SIZE (default 16000 bytes).
  * Override by defining X2CSCOPE_BUFFER_SIZE before including X2Cscope.h. */
 int8_t X2CscopeArray[X2CSCOPE_BUFFER_SIZE];
 

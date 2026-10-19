@@ -57,8 +57,9 @@ extern "C" {
 #endif
 
 //X2Cscope buffer size in bytes, uses the specified bytes from RAM
+//16000 bytes = 1000 samples with 4 float channels (ML data capture)
 #ifndef X2CSCOPE_BUFFER_SIZE
-#define X2CSCOPE_BUFFER_SIZE 5000
+#define X2CSCOPE_BUFFER_SIZE 16000
 #endif
 
 //X2Cscope Get Device Info service, 2 bytes
