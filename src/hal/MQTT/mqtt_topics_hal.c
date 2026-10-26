@@ -85,6 +85,11 @@ static void get_failure_str(char *data)
     sprintf(data, "%d", (int)ML_APP_GetClass());
 }
 
+static void get_inference_time_str(char *data)
+{
+    sprintf(data, "%lu", (unsigned long)ML_APP_GetInferenceTimeUs());
+}
+
 static void get_aiml_status_str(char *data)
 {
     sprintf(data, "%d", aiml_status);
@@ -174,6 +179,7 @@ void MQTT_init_topics_hal(void)
         {"smart_motor", "pot",            get_pot_str,          NULL,              true},
         {"smart_motor", "aiml_mode",      NULL,                 handle_aiml_mode,  false},
         {"smart_motor", "aiml_status",    get_aiml_status_str,  NULL,              true},
+        {"smart_motor", "inference_time", get_inference_time_str, NULL,            true},   /* us, AI_Timer */
         {"smart_motor", "max_speed",      get_max_speed_str,    NULL,              false},
         {"smart_motor", "firmware",       get_fw_version_str,   NULL,              false},
         {"smart_motor", "mcu_uid",        get_mcu_uid_str,      NULL,              false},

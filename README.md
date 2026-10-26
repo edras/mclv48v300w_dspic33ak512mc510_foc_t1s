@@ -451,6 +451,7 @@ On connection to the broker, the firmware publishes one-time board information (
 | `smart_motor/firmware` | Firmware build date |
 | `smart_motor/mcu_uid` | MCU device ID |
 | `smart_motor/max_speed` | Maximum configured speed |
+| `smart_motor/inference_time` | Duration in µs of the inference that produced the last ML class. It is measured with `AI_Timer` (SCCP2) around `kb_run_model()` and is `0` until the first classification. |
 
 The firmware also subscribes to remote control topics:
 

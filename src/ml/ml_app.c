@@ -1,8 +1,14 @@
 #include "ml_app.h"
 #include "mc/mc_app.h"
 #include "kb.h"
+#include "mcc_generated_files/timer/sccp2.h"
 
 #include <stdio.h>
+
+/* AI_Timer (SCCP2): free-running 32-bit, Clock Generator 13 = 200 MHz, 1:1,
+ * period 50 ms (10,000,000 ticks). One tick = 5 ns. */
+#define AI_TIMER_NS_PER_TICK    5u
+#define AI_TIMER_PERIOD_TICKS   (AI_Timer_PeriodGet() + 1u)
 
 /* Training data: X2Cscope prescaler 10 at the 20 kHz ISR -> 2 kHz */
 #define ML_DECIMATION       10u
@@ -31,6 +37,17 @@ static bool modelArmed = false;
 volatile uint8_t mlClass = ML_CLASS_UNKNOWN;
 volatile uint32_t mlClassCount = 0;
 volatile uint32_t mlQueueOverflows = 0;
+/* Duration of the kb_run_model() call that produced the last classification,
+ * and the longest such call since boot, in microseconds. */
+volatile uint32_t mlInferenceTimeUs = 0;
+volatile uint32_t mlInferenceTimeMaxUs = 0;
+
+static uint32_t ai_timer_elapsed_us(uint32_t start, uint32_t end)
+{
+    /* The counter wraps at the period match; one wrap at most per call. */
+    uint32_t ticks = (end >= start) ? (end - start) : (end + AI_TIMER_PERIOD_TICKS - start);
+    return (ticks * AI_TIMER_NS_PER_TICK + 500u) / 1000u;
+}
 
 static const char *const classNames[] = {
     "unknown", "fingertap", "normal", "notch_long", "notch_short"
@@ -95,11 +112,20 @@ void ML_APP_Task(void)
 
     while (queueTail != queueHead)
     {
+        uint32_t t0 = AI_Timer_CounterGet();
         int32_t ret = kb_run_model(queue[queueTail].data, ML_NUM_SENSORS, ML_MODEL_INDEX);
+        uint32_t t1 = AI_Timer_CounterGet();
         queueTail = (uint16_t)((queueTail + 1u) % ML_QUEUE_SIZE);
 
         if (ret >= 0)
         {
+            /* Only the call that completes a window runs feature extraction
+             * and the classifier; the others just buffer a sample. */
+            mlInferenceTimeUs = ai_timer_elapsed_us(t0, t1);
+            if (mlInferenceTimeUs > mlInferenceTimeMaxUs)
+            {
+                mlInferenceTimeMaxUs = mlInferenceTimeUs;
+            }
             mlClass = (ret <= ML_CLASS_NOTCH_SHORT) ? (uint8_t)ret : ML_CLASS_UNKNOWN;
             mlClassCount++;
             printf("ML: %s\r\n", ML_APP_GetClassName((ML_CLASS_T)mlClass));
@@ -111,6 +137,11 @@ void ML_APP_Task(void)
 ML_CLASS_T ML_APP_GetClass(void)
 {
     return (ML_CLASS_T)mlClass;
+}
+
+uint32_t ML_APP_GetInferenceTimeUs(void)
+{
+    return mlInferenceTimeUs;
 }
 
 const char *ML_APP_GetClassName(ML_CLASS_T cls)

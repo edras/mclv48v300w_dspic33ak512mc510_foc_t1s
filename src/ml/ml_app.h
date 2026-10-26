@@ -24,6 +24,8 @@ void ML_APP_Sample(void);
 void ML_APP_Task(void);
 
 ML_CLASS_T  ML_APP_GetClass(void);
+/* Duration of the inference that produced the last class, in us (0 = none yet). */
+uint32_t    ML_APP_GetInferenceTimeUs(void);
 const char *ML_APP_GetClassName(ML_CLASS_T cls);
 
 #endif // ML_APP_H
