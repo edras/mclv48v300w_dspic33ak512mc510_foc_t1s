@@ -55,9 +55,21 @@ Copyright (c) [2012-2020] Microchip Technology Inc.
 #include "X2CscopeComm.h"
 #include "X2Cscope.h"
 
-/* Scope data buffer.
- * Size is controlled by X2CSCOPE_BUFFER_SIZE (default 5000 bytes).
- * Override by defining X2CSCOPE_BUFFER_SIZE before including X2Cscope.h. */
+/* X2Cscope buffer size in bytes, uses the specified bytes from RAM.
+ * Change the default here or override it on the compiler command line,
+ * e.g. -DX2CSCOPE_BUFFER_SIZE=8000 */
+#ifndef X2CSCOPE_BUFFER_SIZE
+#define X2CSCOPE_BUFFER_SIZE 5000
+#endif
+
+/* X2Cscope Get Device Info service, 2 bytes.
+ * Application specific, can be customized.
+ * Reserved APP versions, do not use: 0x1000 - 0x3FFF */
+#ifndef X2CSCOPE_APP_VERSION
+#define X2CSCOPE_APP_VERSION 0x0001
+#endif
+
+/* Scope data buffer, X2CSCOPE_BUFFER_SIZE bytes. */
 int8_t X2CscopeArray[X2CSCOPE_BUFFER_SIZE];
 
 /* Build date/time stamp — read out by the X2Cscope "Get Device Info" service.
@@ -70,17 +82,18 @@ void X2Cscope_Init(void)
     /* X2CSCOPE_CONFIG_INIT requires all 9 parameters. Omitting or reordering
      * any argument causes a compile-time error, catching the most common
      * integration mistakes before the code ever runs.
-     * flushSerial is optional: pass NULL if your peripheral does not need it. */
+     * X2CscopeComm_Flush is optional: pass NULL if your peripheral does not
+     * need it. */
     X2Cscope_Config_t config = X2CSCOPE_CONFIG_INIT(
-        sendSerial,                 /* send one byte          (required) */
-        receiveSerial,              /* receive one byte       (required) */
-        isReceiveDataAvailable,     /* RX data ready flag     (required) */
-        isSendReady,                /* TX buffer not full     (required) */
-        flushSerial,                /* flush/commit TX buffer (NULL if unused) */
-        (void*)X2CscopeArray,       /* scope data buffer      (required) */
-        X2CSCOPE_BUFFER_SIZE,       /* scope buffer size      (required) */
-        X2CSCOPE_APP_VERSION,       /* app version identifier (required) */
-        compilationDate             /* build timestamp        (required) */
+        X2CscopeComm_SendByte,          /* send one byte          (required) */
+        X2CscopeComm_ReceiveByte,       /* receive one byte       (required) */
+        X2CscopeComm_IsByteAvailable,   /* RX data ready flag     (required) */
+        X2CscopeComm_IsSendReady,       /* TX buffer not full     (required) */
+        X2CscopeComm_Flush,             /* flush/commit TX buffer (NULL if unused) */
+        (void*)X2CscopeArray,           /* scope data buffer      (required) */
+        X2CSCOPE_BUFFER_SIZE,           /* scope buffer size      (required) */
+        X2CSCOPE_APP_VERSION,           /* app version identifier (required) */
+        compilationDate                 /* build timestamp        (required) */
     );
     X2Cscope_InitialiseEx(&config);
     X2CscopeComm_PostInit();

@@ -91,6 +91,13 @@ void receiveTcpData(void* tcp_server_cfg, const uint8_t* data, uint16_t len)
     }
 }
 
+/**
+  @brief
+    Called from X2Cscope_Init() after X2Cscope_InitialiseEx(), for steps that
+    must follow library init (e.g. start a TCP server, enable the UART TX
+    interrupt, start DMA transfers).
+    Default: does nothing.
+*/
 void X2CscopeComm_PostInit(void)
 {
     tcp_server_start(&x2cscope_tcp_server);
@@ -102,7 +109,7 @@ void X2CscopeComm_PostInit(void)
    @param[in] serial Serial interface object. (Not used)
    @param[in] data Data to send 
  */
-void sendSerial(uint8_t data)
+void X2CscopeComm_SendByte(uint8_t data)
 {
     tcp_tx_buf[tx_head++] = data;
 }
@@ -114,7 +121,7 @@ void sendSerial(uint8_t data)
   @return
     Return with the received data
  */
-uint8_t receiveSerial()
+uint8_t X2CscopeComm_ReceiveByte(void)
 {
     if (tcp_rx_buf.head == tcp_rx_buf.tail)
     {
@@ -132,7 +139,7 @@ uint8_t receiveSerial()
     True -> Serial data ready to read.
     False -> No data.
  */
-bool isReceiveDataAvailable()
+bool X2CscopeComm_IsByteAvailable()
 {
     return (tcp_rx_buf.head != tcp_rx_buf.tail);
 }
@@ -145,15 +152,48 @@ bool isReceiveDataAvailable()
     True -> Transmit buffer is not full, at least one more character can be written.
     False -> Transmit buffer is full.
  */
-bool isSendReady()
+bool X2CscopeComm_IsSendReady()
 {
     return 1; // Always ready in TCP case
 }
 
-void flushSerial(void)
+/**
+  @brief
+    Send the bytes collected by X2CscopeComm_SendByte(). Called when a frame is
+    complete. Needed if the peripheral buffers TX data (e.g. CAN, TCP/IP).
+    Default: does nothing.
+*/
+void X2CscopeComm_Flush(void)
 {
     tcp_server_send(&x2cscope_tcp_server, tcp_tx_buf, tx_head);
     tx_head = 0;
+}
+
+/**
+  @brief
+    Reset the device when requested from the host.
+
+    WARNING: when this function resets the device, the running application stops
+    immediately and all outputs go to their reset state.
+  @return
+    true  -> the device is reset (now or shortly afterwards).
+    false -> the device cannot be reset now for any safety reason.
+    Default: the device is not reset; the host is told that the reset is not supported.
+*/
+bool X2CscopeComm_ResetDevice(void)
+{
+    // dsPIC30/33, PIC24 (XC16 / XC-DSC):
+    __asm__ volatile ("reset");
+
+    // PIC32M (XC32):
+    // SYSKEY = 0x00000000; SYSKEY = 0xAA996655; SYSKEY = 0x556699AA;   // unlock
+    // RSWRSTSET = 1; (void)RSWRST;                                     // software reset
+    // while (1) {}
+
+    // Cortex-M (CMSIS, e.g. SAM, PIC32C/CK/CM/CZ):
+    // NVIC_SystemReset();
+
+    return true;                // not reached on a direct reset
 }
 /* *****************************************************************************
  End of File

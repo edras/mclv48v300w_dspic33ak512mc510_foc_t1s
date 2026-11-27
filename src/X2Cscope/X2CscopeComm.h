@@ -55,10 +55,11 @@ Copyright (c) [2012-2020] Microchip Technology Inc.
 #ifdef __cplusplus
 extern "C" {
 #endif
-    
+
+#include <stddef.h>
 #include <stdint.h>
 #include <stdbool.h>
-#include "X2Cscope.h"  /* compilationDate_t, X2CSCOPE_BUFFER_SIZE, X2CSCOPE_APP_VERSION */
+#include "X2Cscope.h"  /* compilationDate_t */
 
 /**
  * @brief Unified configuration structure for X2Cscope initialization.
@@ -66,19 +67,20 @@ extern "C" {
  * Use with X2CSCOPE_CONFIG_INIT() macro and X2Cscope_InitialiseEx() for
  * single-call, compile-time-safe initialization.
  *
- * All function pointer fields except flushSerial are required (must not be NULL).
- * flushSerial is optional and may be set to NULL if not needed.
+ * All function pointer fields except flush are required (must not be NULL).
+ * flush is optional and may be set to NULL if not needed. X2Cscope_Init()
+ * (X2Cscope.c) passes X2CscopeComm_Flush, which has a default (see below).
  */
 typedef struct {
-    /* Communication interface — all required except flushSerial */
-    void    (*sendSerial)(uint8_t);             /**< Required: Send one byte over serial */
-    uint8_t (*receiveSerial)(void);             /**< Required: Receive one byte from serial */
-    bool    (*isReceiveDataAvailable)(void);    /**< Required: Returns non-zero when RX data is waiting */
-    bool    (*isSendReady)(void);               /**< Required: Returns non-zero when TX buffer has space */
-    void    (*flushSerial)(void);               /**< Optional: Flush/commit TX buffer (set NULL if unused) */
+    /* Communication interface — all required except flush */
+    void    (*sendByte)(uint8_t);               /**< Required: Send one byte over serial */
+    uint8_t (*receiveByte)(void);               /**< Required: Receive one byte from serial */
+    bool    (*isByteAvailable)(void);           /**< Required: Returns true when RX data is waiting */
+    bool    (*isSendReady)(void);               /**< Required: Returns true when TX buffer has space */
+    void    (*flush)(void);                     /**< Optional: Flush/commit TX buffer (set NULL if unused) */
     /* Scope buffer */
     void*    scopeArray;                        /**< Required: Pointer to scope data buffer allocated by the application */
-    uint16_t scopeSize;                         /**< Required: Size of scopeArray in bytes (see X2CSCOPE_BUFFER_SIZE) */
+    uint16_t scopeSize;                         /**< Required: Size of scopeArray in bytes (see X2CSCOPE_BUFFER_SIZE in X2Cscope.c) */
     /* Application info */
     uint16_t                appVersion;          /**< Application version identifier (0x0001 default) */
     const compilationDate_t *compilationDate;   /**< Pointer to build timestamp — must have static storage duration */
@@ -90,36 +92,88 @@ typedef struct {
  * All 9 arguments are positional and required. Omitting any argument or
  * providing arguments in the wrong order causes a compiler error or warning,
  * preventing the most common integration mistakes (wrong buffer, wrong size).
+ *
+ * Usage:
+ * @code
+ *   X2Cscope_Config_t config = X2CSCOPE_CONFIG_INIT(
+ *       X2CscopeComm_SendByte, X2CscopeComm_ReceiveByte,
+ *       X2CscopeComm_IsByteAvailable, X2CscopeComm_IsSendReady,
+ *       X2CscopeComm_Flush,        // optional hook with a default, or NULL
+ *       (void*)X2CscopeArray, X2CSCOPE_BUFFER_SIZE,
+ *       X2CSCOPE_APP_VERSION, compilationDate   // macro takes the address
+ *   );
+ *   X2Cscope_InitialiseEx(&config);
+ *   X2CscopeComm_PostInit();
+ * @endcode
  */
 #define X2CSCOPE_CONFIG_INIT(send_, recv_, rxAvail_, txReady_, flush_,  \
                              buf_, bufSize_, ver_, compDate_)           \
 {                                                                        \
-    .sendSerial               = (send_),                                 \
-    .receiveSerial            = (recv_),                                 \
-    .isReceiveDataAvailable   = (rxAvail_),                              \
+    .sendByte                 = (send_),                                 \
+    .receiveByte              = (recv_),                                 \
+    .isByteAvailable          = (rxAvail_),                              \
     .isSendReady              = (txReady_),                              \
-    .flushSerial              = (flush_),                                \
+    .flush                    = (flush_),                                \
     .scopeArray               = (buf_),                                  \
     .scopeSize                = (bufSize_),                              \
     .appVersion               = (ver_),                                  \
     .compilationDate          = &(compDate_)                             \
 }
 
-/* Functions below must be implemented by the X2Cscope user. Typically in X2CscopeComm.c */
-void    sendSerial(uint8_t data);
-uint8_t receiveSerial(void);
-bool    isReceiveDataAvailable(void);
-bool    isSendReady(void);
-void    flushSerial(void);
+/* ---- Required: implement in X2CscopeComm.c ------------------------------ */
+void    X2CscopeComm_SendByte(uint8_t data);
+uint8_t X2CscopeComm_ReceiveByte(void);
+bool    X2CscopeComm_IsByteAvailable(void);
+bool    X2CscopeComm_IsSendReady(void);
 
-/** Single-call init — implemented in the X2Cscope library. */
-void X2Cscope_InitialiseEx(const X2Cscope_Config_t* config);
+/* ---- Implemented in the X2Cscope library -------------------------------- */
 
 /**
- * User-implemented comm-layer post-init. Called from X2Cscope_Init() after
- * X2Cscope_InitialiseEx(). Implement in X2CscopeComm.c.
+ * @brief Single-call initialisation using a unified configuration struct.
+ *
+ * Validates required fields (in debug builds), hooks the communication
+ * interface, and initialises the scope buffer — all in one call.
+ * Follow with X2CscopeComm_PostInit() for any peripheral-level post-init steps.
+ */
+void X2Cscope_InitialiseEx(const X2Cscope_Config_t* config);
+
+/* ---- Optional application hooks -----------------------------------------
+ * The X2Cscope library contains a default for each of these functions.
+ * To replace a default, implement the function in X2CscopeComm.c with exactly
+ * this name and signature (the prototype checks the signature, not the name:
+ * a misspelled name silently keeps the default). See X2CscopeComm.c for
+ * examples.
+ */
+
+/**
+ * @brief Send the bytes collected by X2CscopeComm_SendByte(), called when a
+ * frame is complete. Needed if the peripheral buffers TX data (e.g. CAN, TCP/IP).
+ * Default: does nothing.
+ */
+void X2CscopeComm_Flush(void);
+
+/**
+ * @brief Called from X2Cscope_Init() after X2Cscope_InitialiseEx(), for steps
+ * that must follow library init: starting the TCP server, enabling UART TX
+ * interrupts, starting DMA transfers, etc.
+ * Default: does nothing.
  */
 void X2CscopeComm_PostInit(void);
+
+/**
+ * @brief Reset the device when requested from the host.
+ *
+ * WARNING: when this function resets the device, the running application stops
+ * immediately and all outputs go to their reset state.
+ *
+ * Called from X2Cscope_Communicate().
+ *
+ * @return true  if the device is reset (now or shortly afterwards).
+ * @return false if the device cannot be reset now for any safety reason.
+ *
+ * Default: the device is not reset; the host is told that the reset is not supported.
+ */
+bool X2CscopeComm_ResetDevice(void);
 
 #ifdef __cplusplus
 }
